@@ -23,7 +23,7 @@ class SQL_Handler:
             "port":     int(os.getenv("DB_PORT", "3306")),
             "user":     os.getenv("DB_USER", "malte"),
             "password": os.getenv("DB_PASS", "DEIN_PASSWORT"),
-            "database": "KAI",          # ← Datenbank
+            "database": "KAI",
             "charset":  "utf8mb4",
             "use_pure": True,
         }
@@ -32,7 +32,7 @@ class SQL_Handler:
             self.config["ssl_ca"]       = ssl_ca
             self.config["ssl_disabled"] = False
 
-        self.TABELLE = "users"          # ← Tabelle
+        self.TABELLE = "users"
 
     # ── Verbindungs-Kontextmanager ─────────────────────────────────────────────
     @contextmanager
@@ -50,6 +50,11 @@ class SQL_Handler:
             yield cur
         finally:
             cur.close()
+
+    # ── Nächste ID manuell berechnen ───────────────────────────────────────────
+    def _naechste_id(self, cnx, cur) -> int:
+        cur.execute(f"SELECT COALESCE(MAX(id), 0) + 1 FROM `{self.TABELLE}`")
+        return cur.fetchone()[0]
 
     # ── User: Alle anzeigen ────────────────────────────────────────────────────
     def alle_user(self):
@@ -87,22 +92,33 @@ class SQL_Handler:
             return cur.fetchone()
 
     # ── User: Hinzufügen ───────────────────────────────────────────────────────
-    def user_hinzufuegen(self, username: str, openid_user: str,
-                         password_hash: str, rights: str,
-                         chat_folder_destination: str, banned: int = 0) -> int:
+    def user_hinzufuegen(self, username: str, password_hash: str,
+                         rights: str, chat_folder_destination: str,
+                         openid_user: str = None, banned: int = 0) -> int:
         sql = f"""
         INSERT INTO `{self.TABELLE}`
-            (username, openid_user, password_hash, creation_date,
+            (id, username, openid_user, password_hash, creation_date,
              rights, chat_folder_destination, banned)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
         creation_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        werte = (username, openid_user, password_hash,
-                 creation_date, rights, chat_folder_destination, banned)
-        with self._verbindung() as cnx, self._cursor(cnx) as cur:
-            cur.execute(sql, werte)
-            cnx.commit()
-            return cur.lastrowid
+
+        try:
+            with self._verbindung() as cnx, self._cursor(cnx) as cur:
+                neue_id = self._naechste_id(cnx, cur)
+
+                werte = (neue_id, username,
+                         openid_user or None,   # ← leer = NULL
+                         password_hash, creation_date,
+                         rights, chat_folder_destination, banned)
+
+                cur.execute(sql, werte)
+                cnx.commit()
+                return neue_id
+
+        except mysql.connector.Error as e:
+            print(f"Fehler beim Hinzufügen: {e}")
+            return -1
 
     # ── User: Bearbeiten ───────────────────────────────────────────────────────
     def user_bearbeiten(self, user_id: int, daten: dict) -> int:
@@ -146,7 +162,7 @@ class SQL_Handler:
   ┌─────────────────────────────────────┐
   │ ID:           {user['id']}
   │ Username:     {user['username']}
-  │ OpenID:       {user['openid_user']}
+  │ OpenID:       {user['openid_user'] or '–'}
   │ Erstellt:     {user['creation_date']}
   │ Rechte:       {user['rights']}
   │ Chat-Ordner:  {user['chat_folder_destination']}
@@ -207,19 +223,23 @@ class SQL_Handler:
 
             elif wahl == "4":
                 print("\nNeuen User anlegen:")
-                username                = input("  Username:        ").strip()
-                openid_user             = input("  OpenID:          ").strip()
-                password_hash           = input("  Passwort-Hash:   ").strip()
-                rights                  = input("  Rechte:          ").strip()
-                chat_folder_destination = input("  Chat-Ordner:     ").strip()
-                banned_input            = input("  Gebannt? (0/1):  ").strip()
+                username                = input("  Username:                  ").strip()
+                password_hash           = input("  Passwort-Hash:             ").strip()
+                rights                  = input("  Rechte:                    ").strip()
+                chat_folder_destination = input("  Chat-Ordner:               ").strip()
+                openid_user             = input("  OpenID (leer = NULL):      ").strip() or None
+                banned_input            = input("  Gebannt? (0/1):            ").strip()
                 banned                  = int(banned_input) if banned_input in ("0", "1") else 0
+
                 try:
                     new_id = self.user_hinzufuegen(
-                        username, openid_user, password_hash,
-                        rights, chat_folder_destination, banned
+                        username, password_hash, rights,
+                        chat_folder_destination, openid_user, banned
                     )
-                    print(f"✅ User angelegt! Neue ID: {new_id}")
+                    if new_id != -1:
+                        print(f"✅ User angelegt! Neue ID: {new_id}")
+                    else:
+                        print("❌ User konnte nicht angelegt werden.")
                 except Exception as e:
                     print(f"Fehler: {e}")
 
