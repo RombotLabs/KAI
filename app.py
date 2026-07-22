@@ -86,6 +86,8 @@ def chat(user_id, chat_id):
     if current_user.banned == "1":
         return redirect(url_for("login"))
 
+    return render_template("chat.html")
+
 @app.route('/chat/send/<user_id>/<chat_id>', methods=['GET'])
 @login_required
 def send_message(user_id, chat_id):
@@ -96,9 +98,9 @@ def send_message(user_id, chat_id):
 @login_required
 def admin():
     if current_user.rights == "admin" and not current_user.banned == "1":
-        return render_template('admin.html')
+        return render_template("admin.html")
     else:
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
 
 @app.route('/ban/<user_id>', methods=['GET'])
 @login_required
