@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Interner Fehler - KAI{% endblock %}
+
+{% block custom_css %}
+<style>
+    .error-container {
+        max-width: 600px;
+        margin: 4rem auto;
+        text-align: center;
+    }
+
+    .error-code {
+        font-size: 8rem;
+        font-weight: 700;
+        color: var(--warning);
+        margin: 0;
+        line-height: 1;
+    }
+
+    .error-title {
+        font-size: 2rem;
+        margin: 1rem 0;
+        color: var(--text);
+    }
+
+    .error-description {
+        color: #666;
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+    }
+
+    .error-details {
+        background: #fff3bf;
+        border: 1px solid #ffd43b;
+        color: #e67700;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+        text-align: left;
+        font-size: 0.9rem;
+    }
+
+    .error-details p {
+        margin: 0.5rem 0;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .error-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s;
+        font-size: 1rem;
+    }
+
+    .error-btn-primary {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+    }
+
+    .error-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .error-btn-secondary {
+        background: #e9ecef;
+        color: var(--text);
+    }
+
+    .error-btn-secondary:hover {
+        background: #dee2e6;
+    }
+
+    .error-illustration {
+        font-size: 6rem;
+        margin: 2rem 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-illustration">⚠️</div>
+    <p class="error-code">500</p>
+    <h1 class="error-title">Interner Serverfehler</h1>
+    <p class="error-description">
+        Auf dem Server ist ein Fehler aufgetreten.
+        Bitte versuchen Sie es später noch einmal.
+    </p>
+
+    <div class="error-details">
+        <p><strong>Was ist passiert?</strong></p>
+        <p>Unser System hat einen unerwarteten Fehler festgestellt und konnte Ihre Anfrage nicht bearbeiten.</p>
+        <p style="margin-top: 1rem;"><strong>Was können Sie tun?</strong></p>
+        <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+            <li>Laden Sie die Seite neu</li>
+            <li>Versuchen Sie es in ein paar Minuten erneut</li>
+            <li>Kontaktieren Sie den Support</li>
+        </ul>
+    </div>
+
+    <div class="error-actions">
+        <a href="/" class="error-btn error-btn-primary">🏠 Zur Startseite</a>
+        <a href="/home" class="error-btn error-btn-secondary">💬 Zu meinen Chats</a>
+    </div>
+
+    <p style="color: #999; font-size: 0.9rem;">
+        Fehler-ID: #{{ random_error_id | default('UNKNOWN') }}
+    </p>
+</div>
+{% endblock %}
