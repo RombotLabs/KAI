@@ -113,7 +113,7 @@ def send_message(user_id, chat_id):
     if current_user.banned == "1":
         return redirect(url_for("login"))
 
-@app.route('/admin', methods=['GET'])
+@app.route('/admin', methods=['GET', 'POST'])
 @login_required
 def admin():
     if current_user.rights == "admin" and not current_user.banned == "1":
@@ -121,15 +121,27 @@ def admin():
     else:
         return redirect(url_for("index"))
 
-@app.route('/ban/<user_id>', methods=['GET'])
+@app.route('/ban/<user_id>', methods=['GET', 'POST'])
 @login_required
 def ban(user_id):
-    pass
+    if current_user.rights == "admin" and not current_user.banned == "1":
+        try:
+            sql_handler.user_bannen(user_id)
+            return redirect(url_for("admin"))
+        except:
+            return "Error"
+    else:
+        return redirect(url_for("index"))
 
-@app.route('/unban/<user_id>', methods=['GET'])
+@app.route('/unban/<user_id>', methods=['GET', 'POST'])
 @login_required
 def unban(user_id):
-    pass
+    if current_user.rights == "admin" and not current_user.banned == "1":
+        try:
+            sql_handler.user_entbannen(user_id)
+            return redirect(url_for("admin"))
+        except:
+            return "Error"
 
 @app.route('/set-rights/<user_id>', methods=['POST'])
 @login_required
@@ -139,7 +151,8 @@ def set_rights(user_id):
 @app.route('/spectate/<user_id>', methods=['POST'])
 @login_required
 def spectate(user_id):
-    pass
+    login_user(User(user_id))
+    return redirect(url_for("home"))
 
 @app.errorhandler(403)
 def forbidden(error):
