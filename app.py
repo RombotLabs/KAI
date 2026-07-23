@@ -18,7 +18,7 @@ ph = PasswordHasher()
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
-lms = LMSHandler("127.0.0.1", "1234")
+lms = LMSHandler("10.254.0.185", "1234")
 ufm = UFM()
 
 print("MODEL TEST:")
