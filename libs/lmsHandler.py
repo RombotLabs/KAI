@@ -53,3 +53,36 @@ class LMSHandler:
             return answer
         except:
             return "Error Try Again!"
+
+    def ask_ai_nochat(self, messages: str, model: str):
+        try:
+
+            payload = {
+
+                "model": model,
+
+                "messages": messages,
+
+                "temperature": 0.7,
+
+                "stream": False,
+
+            }
+
+            response = requests.post(
+
+                f"{self.BASE_URL}chat/completions",
+
+                json=payload,
+
+                timeout=120,
+
+            )
+
+            response.raise_for_status()
+
+            answer = response.json()["choices"][0]["message"]["content"]
+
+            return answer
+        except:
+            return "Error Try Again!"
