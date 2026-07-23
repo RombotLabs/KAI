@@ -19,10 +19,10 @@ except ImportError:
 class SQL_Handler:
     def __init__(self):
         self.config = {
-            "host":     os.getenv("DB_HOST", "10.254.0.185"),
+            "host":     os.getenv("DB_HOST", ""),
             "port":     int(os.getenv("DB_PORT", "3306")),
-            "user":     os.getenv("DB_USER", "malte"),
-            "password": os.getenv("DB_PASS", "DEIN_PASSWORT"),
+            "user":     os.getenv("DB_USER", ""),
+            "password": os.getenv("DB_PASS", ""),
             "database": "KAI",
             "charset":  "utf8mb4",
             "use_pure": True,
@@ -108,7 +108,7 @@ class SQL_Handler:
                 neue_id = self._naechste_id(cnx, cur)
 
                 werte = (neue_id, username,
-                         openid_user or None,   # ← leer = NULL
+                         openid_user or None,
                          password_hash, creation_date,
                          rights, chat_folder_destination, banned)
 
@@ -137,6 +137,11 @@ class SQL_Handler:
             cur.execute(sql, werte)
             cnx.commit()
             return cur.rowcount
+
+    # ── User: Rechte bearbeiten ────────────────────────────────────────────────
+    def rechte_bearbeiten(self, user_id: int, neue_rechte: str) -> int:
+        """Ändert die Rechte eines Users anhand der ID."""
+        return self.user_bearbeiten(user_id, {"rights": neue_rechte})
 
     # ── User: Löschen ──────────────────────────────────────────────────────────
     def user_loeschen(self, user_id: int) -> int:
@@ -182,6 +187,7 @@ class SQL_Handler:
         print("6) User löschen")
         print("7) User bannen")
         print("8) User entbannen")
+        print("9) Rechte bearbeiten")  # ← NEU
         print("0) Beenden")
         print("="*45)
         return input("Auswahl: ").strip()
@@ -302,6 +308,26 @@ class SQL_Handler:
                     user_id = int(input("User-ID zum Entbannen: ").strip())
                     n = self.user_entbannen(user_id)
                     print(f"✅ User {user_id} entbannt." if n else "❌ User nicht gefunden.")
+                except ValueError:
+                    print("Bitte eine gültige Zahl eingeben.")
+                except Exception as e:
+                    print(f"Fehler: {e}")
+
+            # ── Rechte bearbeiten ──────────────────────────────────────────────
+            elif wahl == "9":
+                try:
+                    user_id = int(input("User-ID: ").strip())
+                    user    = self.user_suchen_by_id(user_id)
+                    if not user:
+                        print("❌ User nicht gefunden.")
+                        continue
+                    self._user_ausgeben(user)
+                    neue_rechte = input(f"  Neue Rechte [{user['rights']}]: ").strip()
+                    if neue_rechte:
+                        n = self.rechte_bearbeiten(user_id, neue_rechte)
+                        print(f"✅ Rechte auf '{neue_rechte}' gesetzt." if n else "❌ Fehler.")
+                    else:
+                        print("Keine Änderung vorgenommen.")
                 except ValueError:
                     print("Bitte eine gültige Zahl eingeben.")
                 except Exception as e:
