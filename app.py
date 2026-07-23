@@ -17,6 +17,7 @@ ph = PasswordHasher()
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
+lms = LMSHandler("100.117.97.48", "1234")
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -30,7 +31,25 @@ def load_user(user_id):
 def index():
     return render_template('index.html')
 
-@app.route('login', methods=['GET', 'POST'])
+@app.route('/freechat', methods=['GET', 'POST'])
+def freechat():
+    return render_template('freechat.html', models=lms.getModels())
+
+@app.route('/freechat/api', methods=['GET', 'POST'])
+def freechat_api():
+    model = request.get_json()
+    question = request.get_json()
+    if question:
+        answer = lms.ask_ai_nochat(question, model)
+        return jsonify({
+            "response": answer
+        })
+    else:
+        return jsonify({
+            "response": "Error"
+        })
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     username = request.form['username']
     password = request.form['password']
