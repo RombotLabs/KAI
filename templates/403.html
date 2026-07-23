@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Zugriff verboten - KAI{% endblock %}
+
+{% block custom_css %}
+<style>
+    .error-container {
+        max-width: 600px;
+        margin: 4rem auto;
+        text-align: center;
+    }
+
+    .error-code {
+        font-size: 8rem;
+        font-weight: 700;
+        color: var(--danger);
+        margin: 0;
+        line-height: 1;
+    }
+
+    .error-title {
+        font-size: 2rem;
+        margin: 1rem 0;
+        color: var(--text);
+    }
+
+    .error-description {
+        color: #666;
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .error-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s;
+        font-size: 1rem;
+    }
+
+    .error-btn-primary {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+    }
+
+    .error-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .error-btn-secondary {
+        background: #e9ecef;
+        color: var(--text);
+    }
+
+    .error-btn-secondary:hover {
+        background: #dee2e6;
+    }
+
+    .error-illustration {
+        font-size: 6rem;
+        margin: 2rem 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-illustration">🚫</div>
+    <p class="error-code">403</p>
+    <h1 class="error-title">Zugriff verweigert</h1>
+    <p class="error-description">
+        Sie haben keine Berechtigung, auf diese Seite zuzugreifen.
+        Kontaktieren Sie einen Administrator, wenn Sie glauben, dass dies ein Fehler ist.
+    </p>
+
+    <div class="error-actions">
+        <a href="/" class="error-btn error-btn-primary">🏠 Zur Startseite</a>
+        <a href="/home" class="error-btn error-btn-secondary">💬 Zu meinen Chats</a>
+    </div>
+
+    <p style="color: #999; font-size: 0.9rem;">
+        <strong>Benutzerrechte:</strong> Nur Administratoren können auf diese Seite zugreifen.
+    </p>
+</div>
+{% endblock %}

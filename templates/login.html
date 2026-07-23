@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Anmelden - KAI{% endblock %}
+
+{% block custom_css %}
+<style>
+    .login-container {
+        max-width: 400px;
+        margin: 4rem auto;
+    }
+
+    .login-card {
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .login-card .card-header {
+        text-align: center;
+        padding: 2rem 1.5rem;
+    }
+
+    .login-card .card-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .login-card .card-header p {
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        font-size: 1rem;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .error-message {
+        background: #ffe0e0;
+        color: #c92a2a;
+        border: 1px solid #ff6b6b;
+        padding: 0.75rem;
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .login-submit {
+        width: 100%;
+        padding: 0.75rem;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .login-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .login-submit:active {
+        transform: translateY(0);
+    }
+
+    .login-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .login-footer p {
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    .login-footer a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s;
+    }
+
+    .login-footer a:hover {
+        color: var(--primary-dark);
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .remember-me input[type="checkbox"] {
+        width: auto;
+        cursor: pointer;
+    }
+
+    .remember-me label {
+        margin: 0;
+        cursor: pointer;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="card login-card">
+        <div class="card-header">
+            <h1>🔐 Anmelden</h1>
+            <p>Melden Sie sich bei Ihrem KAI-Konto an</p>
+        </div>
+        <div class="card-body">
+            {% if error %}
+            <div class="error-message">
+                <span>⚠️</span>
+                <span>{{ error }}</span>
+            </div>
+            {% endif %}
+
+            <form method="POST" action="/login">
+                <div class="form-group">
+                    <label for="username">Benutzername</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        required 
+                        placeholder="Geben Sie Ihren Benutzernamen ein"
+                        autofocus
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Passwort</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        required 
+                        placeholder="Geben Sie Ihr Passwort ein"
+                    >
+                </div>
+
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Angemeldet bleiben</label>
+                </div>
+
+                <button type="submit" class="login-submit">
+                    🚀 Anmelden
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <p>Noch kein Konto?</p>
+                <a href="/register">Jetzt registrieren →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo Info Card -->
+    <div class="card" style="margin-top: 2rem; background: #f0f4ff; border: 2px solid var(--primary);">
+        <div class="card-body">
+            <h3 style="color: var(--primary); margin-bottom: 0.5rem;">💡 Demo-Hinweis</h3>
+            <p style="font-size: 0.9rem; color: #555; margin-bottom: 0;">
+                Sie können die Demo-Anmeldedaten verwenden um die Anwendung zu testen.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

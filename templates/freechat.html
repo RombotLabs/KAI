@@ -1,0 +1,485 @@
+{% extends "base.html" %}
+
+{% block title %}Free Chat - KAI{% endblock %}
+
+{% block custom_css %}
+<style>
+    .freechat-wrapper {
+        display: flex;
+        flex-direction: column;
+        max-width: 900px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+    }
+
+    .freechat-header {
+        background: linear-gradient(135deg, var(--secondary) 0%, #e884d0 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .freechat-header h1 {
+        font-size: 2rem;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .freechat-header p {
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    .freechat-container {
+        padding: 2rem;
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .response-box {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border-left: 4px solid var(--primary);
+        margin-bottom: 1rem;
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .response-label {
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .response-content {
+        color: var(--text);
+        line-height: 1.6;
+        word-wrap: break-word;
+    }
+
+    .input-section {
+        background: white;
+        border-top: 1px solid #e9ecef;
+        padding: 2rem;
+    }
+
+    .input-section h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        color: var(--text);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-grid .form-group {
+        margin-bottom: 0;
+    }
+
+    .form-grid label {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-grid select {
+        padding: 0.75rem;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        font-size: 1rem;
+    }
+
+    .form-grid select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-full {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .form-full textarea {
+        width: 100%;
+        padding: 1rem;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .form-full textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+    }
+
+    .submit-btn {
+        padding: 0.75rem 2rem;
+        background: linear-gradient(135deg, var(--secondary) 0%, #e884d0 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+        font-size: 1rem;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .submit-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .clear-btn {
+        padding: 0.75rem 2rem;
+        background: #e9ecef;
+        color: var(--text);
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+        font-size: 1rem;
+    }
+
+    .clear-btn:hover {
+        background: #dee2e6;
+    }
+
+    .loading-spinner {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .error-box {
+        background: #ffe0e0;
+        color: #c92a2a;
+        border: 1px solid #ff6b6b;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .info-card {
+        background: #e7f5ff;
+        border: 1px solid #a5d8ff;
+        color: #1971c2;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .info-card h3 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-card p {
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        color: #666;
+        padding: 2rem;
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .freechat-wrapper {
+            margin: 1rem;
+        }
+
+        .freechat-header {
+            padding: 1.5rem;
+        }
+
+        .freechat-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .freechat-container {
+            padding: 1rem;
+        }
+
+        .input-section {
+            padding: 1rem;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .button-group {
+            flex-direction: column;
+        }
+
+        .submit-btn,
+        .clear-btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="freechat-wrapper">
+    <!-- Header -->
+    <div class="freechat-header">
+        <h1>⚡ Free Chat</h1>
+        <p>Stellen Sie Fragen ohne einen Chat zu speichern</p>
+    </div>
+
+    <!-- Response Container -->
+    <div class="freechat-container">
+        <div class="info-card">
+            <h3>💡 Tipp</h3>
+            <p>
+                Nutzen Sie den Free Chat Modus für einmalige Fragen, die Sie nicht speichern möchten.
+                Die Antworten werden nicht in Ihrem Chatverlauf gespeichert.
+            </p>
+        </div>
+
+        <div id="responseArea" style="display: none;">
+            {% if error %}
+            <div class="error-box">
+                <span>⚠️</span>
+                <span>{{ error }}</span>
+            </div>
+            {% endif %}
+
+            <div class="response-box" id="responseBox">
+                <div class="response-label">Antwort</div>
+                <div class="response-content" id="responseContent">
+                    <!-- Response will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <div id="emptyState" class="empty-state">
+            <div class="empty-state-icon">🤔</div>
+            <p>Stellen Sie eine Frage und erhalten Sie sofort eine Antwort</p>
+        </div>
+    </div>
+
+    <!-- Input Section -->
+    <div class="input-section">
+        <h3>✍️ Ihre Frage</h3>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="modelSelect">KI-Modell</label>
+                <select id="modelSelect">
+                    <option value="">Laden...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="temperatureSelect">Kreativität</label>
+                <select id="temperatureSelect">
+                    <option value="0.3">Präzise (0.3)</option>
+                    <option value="0.7" selected>Ausgeglichen (0.7)</option>
+                    <option value="1.0">Kreativ (1.0)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-full">
+            <textarea 
+                id="questionInput" 
+                placeholder="Stellen Sie Ihre Frage hier..."
+                onkeypress="handleKeyPress(event)"
+            ></textarea>
+
+            <div class="button-group">
+                <button class="clear-btn" id="clearBtn" onclick="clearForm()">
+                    🗑️ Löschen
+                </button>
+                <button class="submit-btn" id="submitBtn" onclick="submitQuestion()">
+                    🚀 Frage stellen
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let availableModels = [];
+
+    // Load models on page load
+    window.addEventListener('DOMContentLoaded', async function() {
+        await loadModels();
+        document.getElementById('questionInput').focus();
+    });
+
+    async function loadModels() {
+        try {
+            const response = await fetch('/freechat/models');
+
+            if (!response.ok) {
+                throw new Error(
+                    "Fehler beim Laden der Modelle"
+                );
+            }
+
+            const data = await response.json();
+
+            availableModels = data.models;
+
+        } catch (error) {
+            console.error(
+                "Error loading models:",
+                error
+            );
+
+            availableModels = [];
+        }
+
+        const modelSelect =
+            document.getElementById('modelSelect');
+
+        modelSelect.innerHTML = '';
+
+        availableModels.forEach(model => {
+            const option =
+                document.createElement('option');
+
+            option.value = model;
+            option.textContent = model;
+
+            modelSelect.appendChild(option);
+        });
+
+        if (availableModels.length > 0) {
+            modelSelect.value = availableModels[0];
+        }
+    }
+    async function submitQuestion() {
+        const question = document.getElementById('questionInput').value.trim();
+        const model = document.getElementById('modelSelect').value;
+        const temperature = document.getElementById('temperatureSelect').value;
+
+        if (!question) {
+            alert('Bitte geben Sie eine Frage ein');
+            return;
+        }
+
+        if (!model) {
+            alert('Bitte wählen Sie ein Modell');
+            return;
+        }
+
+        const submitBtn = document.getElementById('submitBtn');
+        const emptyState = document.getElementById('emptyState');
+        const responseArea = document.getElementById('responseArea');
+        const responseContent = document.getElementById('responseContent');
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<div class="loading-spinner"><div class="spinner"></div>Wird verarbeitet...</div>';
+
+        try {
+            const response = await fetch('/freechat/api', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: question,
+                    model: model,
+                    temperature: parseFloat(temperature)
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Fehler beim Abrufen der Antwort');
+            }
+
+            const data = await response.json();
+
+            emptyState.style.display = 'none';
+            responseArea.style.display = 'block';
+            responseContent.textContent = data.response || 'Keine Antwort erhalten';
+
+        } catch (error) {
+            responseArea.style.display = 'block';
+            emptyState.style.display = 'none';
+            responseContent.innerHTML = `<div class="error-box"><span>⚠️</span><span>Fehler: ${error.message}</span></div>`;
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '🚀 Frage stellen';
+        }
+    }
+
+    function clearForm() {
+        document.getElementById('questionInput').value = '';
+        document.getElementById('questionInput').focus();
+        document.getElementById('responseArea').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'block';
+    }
+
+    function handleKeyPress(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            submitQuestion();
+        }
+    }
+</script>
+{% endblock %}

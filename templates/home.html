@@ -1,0 +1,559 @@
+{% extends "base.html" %}
+
+{% block title %}Meine Chats - KAI{% endblock %}
+
+{% block custom_css %}
+<style>
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .header-section h1 {
+        font-size: 2rem;
+        margin: 0;
+    }
+
+    .new-chat-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+        font-size: 1rem;
+    }
+
+    .new-chat-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .chats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .chat-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        transition: all 0.3s;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .chat-card-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 1rem;
+    }
+
+    .chat-card-title {
+        flex: 1;
+    }
+
+    .chat-card-title h3 {
+        font-size: 1.1rem;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .chat-card-title .chat-id {
+        opacity: 0.8;
+        font-size: 0.85rem;
+    }
+
+    .chat-card-delete {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        padding: 0.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1.1rem;
+        transition: background 0.3s;
+    }
+
+    .chat-card-delete:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    .chat-card-body {
+        padding: 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .chat-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .chat-info-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-info-label {
+        color: #666;
+        font-size: 0.85rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .chat-info-value {
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .chat-model {
+        display: inline-block;
+        background: rgba(102, 126, 234, 0.1);
+        color: var(--primary);
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .chat-card-footer {
+        border-top: 1px solid #e9ecef;
+        padding-top: 1rem;
+    }
+
+    .open-chat-btn {
+        width: 100%;
+        padding: 0.75rem;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .open-chat-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h2 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+
+    .empty-state p {
+        color: #666;
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-state-btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .empty-state-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .model-selector {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 2rem;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+    }
+
+    .model-selector label {
+        margin: 0;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .model-selector select {
+        flex: 1;
+        padding: 0.75rem;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal.active {
+        display: flex;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        max-width: 400px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text);
+    }
+
+    .modal-body {
+        margin-bottom: 1.5rem;
+        color: #666;
+    }
+
+    .modal-footer {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+    }
+
+    .modal-footer button {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .modal-footer .btn-cancel {
+        background: #e9ecef;
+        color: var(--text);
+    }
+
+    .modal-footer .btn-cancel:hover {
+        background: #dee2e6;
+    }
+
+    .modal-footer .btn-delete {
+        background: var(--danger);
+        color: white;
+    }
+
+    .modal-footer .btn-delete:hover {
+        background: #e03131;
+    }
+
+    @media (max-width: 768px) {
+        .header-section {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .chats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .model-selector {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .model-selector select {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="header-section">
+        <h1>💬 Meine Chats</h1>
+        <button class="new-chat-btn" onclick="openNewChatModal()">
+            ➕ Neuer Chat
+        </button>
+    </div>
+
+    <!-- Model Selector for New Chat -->
+    <div class="model-selector" id="modelSelector">
+        <label for="modelSelect">Modell auswählen:</label>
+        <select id="modelSelect">
+            <option value="">Laden...</option>
+        </select>
+        <button class="btn btn-primary btn-small" onclick="createNewChat()">
+            Erstellen
+        </button>
+    </div>
+
+    <!-- Chats Grid -->
+    {% if chats %}
+    <div class="chats-grid" id="chatsGrid">
+        {% for chat in chats %}
+        <div class="chat-card" id="chat-{{ chat.chat_id }}">
+            <div class="chat-card-header">
+                <div class="chat-card-title">
+                    <h3>Chat #{{ chat.chat_id }}</h3>
+                    <div class="chat-id">ID: {{ chat.chat_id }}</div>
+                </div>
+                <button class="chat-card-delete" onclick="confirmDeleteChat({{ chat.chat_id }})">
+                    🗑️
+                </button>
+            </div>
+            <div class="chat-card-body">
+                <div>
+                    <div class="chat-model">{{ chat.model }}</div>
+                    <div class="chat-info">
+                        <div class="chat-info-item">
+                            <span class="chat-info-label">Nachrichten</span>
+                            <span class="chat-info-value">{{ chat.message_count }}</span>
+                        </div>
+                        <div class="chat-info-item">
+                            <span class="chat-info-label">Status</span>
+                            <span class="chat-info-value">
+                                {% if chat.has_system %}✅ Aktiv{% else %}⏸️ Leer{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-card-footer">
+                    <a href="/chat/{{ chat.chat_id }}" class="open-chat-btn">
+                        🚀 Öffnen
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="empty-state">
+        <div class="empty-state-icon">💬</div>
+        <h2>Noch keine Chats</h2>
+        <p>Erstellen Sie Ihren ersten Chat, um zu beginnen.</p>
+        <button class="empty-state-btn" onclick="openNewChatModal()">
+            ➕ Erstes Chat erstellen
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal" id="deleteModal">
+    <div class="modal-content">
+        <div class="modal-header">🗑️ Chat löschen?</div>
+        <div class="modal-body">
+            Sind Sie sicher, dass Sie diesen Chat löschen möchten? 
+            Diese Aktion kann nicht rückgängig gemacht werden.
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeDeleteModal()">Abbrechen</button>
+            <button class="btn-delete" onclick="deleteChat()">Ja, löschen</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let chatToDelete = null;
+    let availableModels = [];
+    let selectedModel = null;
+
+    // Load available models on page load
+    window.addEventListener('DOMContentLoaded', async function() {
+        await loadModels();
+    });
+
+    async function loadModels() {
+        const modelSelect = document.getElementById("modelSelect");
+
+        try {
+            const response = await fetch("/freechat/models");
+
+            if (!response.ok) {
+                throw new Error(
+                    `HTTP ${response.status}`
+                );
+            }
+
+            const data = await response.json();
+
+            console.log("Models:", data);
+
+            modelSelect.innerHTML = "";
+
+            data.models.forEach((model) => {
+                const option = document.createElement("option");
+
+                option.value = model;
+                option.textContent = model;
+
+                modelSelect.appendChild(option);
+            });
+
+        } catch (error) {
+            console.error(
+                "Fehler beim Laden der Modelle:",
+                error
+            );
+
+            modelSelect.innerHTML =
+                '<option value="">Fehler beim Laden</option>';
+        }
+    }
+
+
+    window.addEventListener(
+        "DOMContentLoaded",
+        loadModels
+    );
+
+    function openNewChatModal() {
+        const modelSelect = document.getElementById('modelSelect');
+        modelSelect.focus();
+    }
+
+    async function createNewChat() {
+        const modelSelect = document.getElementById('modelSelect');
+        const model = modelSelect.value;
+
+        if (!model) {
+            alert('Bitte wählen Sie ein Modell');
+            return;
+        }
+
+        try {
+            const response = await fetch('/chat/new', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ model })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to create chat');
+            }
+
+            window.location.href = `/chat/${data.chat_id}`;
+
+        } catch (error) {
+            console.error("Create chat error:", error);
+            alert(`Fehler beim Erstellen des Chats: ${error.message}`);
+        }
+    }
+
+    function confirmDeleteChat(chatId) {
+        chatToDelete = chatId;
+        document.getElementById('deleteModal').classList.add('active');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('active');
+        chatToDelete = null;
+    }
+
+    async function deleteChat() {
+        if (!chatToDelete) return;
+
+        try {
+            const response = await fetch(`/chat/${chatToDelete}/delete`, {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                const chatCard = document.getElementById(`chat-${chatToDelete}`);
+                if (chatCard) {
+                    chatCard.style.animation = 'fadeOut 0.3s ease';
+                    setTimeout(() => {
+                        chatCard.remove();
+                        // Check if there are no more chats
+                        if (document.getElementById('chatsGrid').children.length === 0) {
+                            location.reload();
+                        }
+                    }, 300);
+                }
+            } else {
+                alert('Fehler beim Löschen des Chats');
+            }
+        } catch (error) {
+            alert(`Fehler: ${error.message}`);
+        }
+
+        closeDeleteModal();
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+
+    // Add fade-out animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

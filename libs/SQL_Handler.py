@@ -71,7 +71,7 @@ class SQL_Handler:
     # ── User: Suchen ──────────────────────────────────────────────────────────
     def user_suchen(self, username: str):
         sql = f"""
-        SELECT id, username, openid_user, creation_date,
+        SELECT id, username, password_hash, openid_user, creation_date,
                rights, chat_folder_destination, banned
         FROM `{self.TABELLE}`
         WHERE username = %s
@@ -82,7 +82,7 @@ class SQL_Handler:
 
     def user_suchen_by_id(self, user_id: int):
         sql = f"""
-        SELECT id, username, openid_user, creation_date,
+        SELECT id, username, password_hash, openid_user, creation_date,
                rights, chat_folder_destination, banned
         FROM `{self.TABELLE}`
         WHERE id = %s
