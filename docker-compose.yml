@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: kai_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: kai
+      MYSQL_USER: ${MYSQL_USER:-kaiuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-kaipassword}
+    ports:
+      - "3306:3306"
+    volumes:
+      # Mount backup.sql for initial import
+      - ./backup.sql:/docker-entrypoint-initdb.d/01-backup.sql
+      # Persist database data
+      - mysql_data:/var/lib/mysql
+    networks:
+      - kai_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+
+  kai_app:
+    build: .
+    container_name: kai_app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: ${MYSQL_USER:-kaiuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-kaipassword}
+      MYSQL_DATABASE: kai
+      FLASK_ENV: ${FLASK_ENV:-development}
+      FLASK_DEBUG: ${FLASK_DEBUG:-0}
+      # LMS Configuration for external Mac instance
+      LMS_HOST: ${LMS_HOST:-host.docker.internal}
+      LMS_PORT: ${LMS_PORT:-8000}
+      LMS_API_KEY: ${LMS_API_KEY}
+      LMS_API_URL: ${LMS_API_URL:-http://host.docker.internal:8000/api}
+    ports:
+      - "5000:5000"
+    volumes:
+      # Mount app code for development (optional)
+      - .:/app
+      # Mount backup file
+      - ./backup.sql:/app/backup.sql:ro
+    networks:
+      - kai_network
+    extra_hosts:
+      # Allow container to reach Mac host
+      - "host.docker.internal:host-gateway"
+    stdin_open: true
+    tty: true
+
+networks:
+  kai_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
