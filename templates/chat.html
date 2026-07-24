@@ -47,7 +47,13 @@
             position: relative; z-index: 9999; overflow: visible; flex-shrink: 0;
             transition: background-color 0.3s;
         }
-        .navbar img { width: 45px; height: 45px; border-radius: 50%; object-fit: contain; cursor: pointer; }
+        .navbar-logo {
+            width: 45px; height: 45px; border-radius: 50%; object-fit: contain;
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none; display: block;
+        }
+        .navbar-logo:hover { transform: scale(1.08); box-shadow: 0 0 0 3px var(--akzent); border-radius: 50%; }
+
         .nav-links { display: flex; flex-direction: row-reverse; gap: 10px; overflow: visible; }
 
         .dropdown { position: relative; overflow: visible; }
@@ -119,18 +125,15 @@
         .lang-btn:hover { background-color: var(--akzent); color: var(--text-inv); }
         .lang-btn.aktiv { background-color: var(--akzent); color: var(--text-inv); font-weight: bold; }
 
-        /* Profil Untermenü Links */
-        .profil-untermenu-list { display: flex; flex-direction: column; gap: 4px; padding: 5px; }
-        .profil-untermenu-btn {
-            background: transparent; color: var(--text);
-            border: 1px solid var(--akzent); padding: 9px 12px; border-radius: 6px;
+        /* Logout Button */
+        .logout-untermenu-list { display: flex; flex-direction: column; gap: 4px; padding: 5px; }
+        .logout-untermenu-btn {
+            background: transparent; color: #e74c3c;
+            border: 1px solid #e74c3c; padding: 9px 12px; border-radius: 6px;
             cursor: pointer; font-size: 13px; transition: all 0.2s;
-            text-align: left; display: flex; align-items: center; gap: 8px;
-            width: 100%; font-family: inherit;
+            text-align: left; width: 100%; font-family: inherit;
         }
-        .profil-untermenu-btn:hover { background-color: var(--akzent); color: var(--text-inv); }
-        .profil-untermenu-btn.logout-btn { border-color: #e74c3c; color: #e74c3c; }
-        .profil-untermenu-btn.logout-btn:hover { background-color: #e74c3c; color: #ffffff; }
+        .logout-untermenu-btn:hover { background-color: #e74c3c; color: #ffffff; }
 
         .trennlinie { height: 2px; background: var(--akzent); position: relative; z-index: 1; flex-shrink: 0; }
 
@@ -334,37 +337,97 @@
         .modal-close:hover { background: var(--akzent); color: var(--text-inv); }
         .modal-body { padding: 1.5rem; background: transparent; }
 
-        /* ── PROFIL SETTINGS MODAL ── */
-        .profil-form { display: flex; flex-direction: column; gap: 14px; }
-        .profil-form-group { display: flex; flex-direction: column; gap: 5px; }
-        .profil-form-label { font-size: 0.85rem; color: var(--text); opacity: 0.7; font-weight: 600; }
-        .profil-form-input {
+        /* ── NOTIZEN ── */
+        .notizen-toolbar {
+            display: flex; gap: 8px; margin-bottom: 12px; align-items: center;
+        }
+        .notizen-search {
+            flex: 1; padding: 8px 12px; border-radius: 8px;
+            background: transparent; color: var(--text);
+            border: 1.5px solid var(--akzent); font-size: 0.9rem; font-family: inherit;
+        }
+        .notizen-search::placeholder { color: var(--text); opacity: 0.4; }
+        .notizen-search:focus { outline: none; border-color: var(--highlight); }
+        .notizen-neu-btn {
+            padding: 8px 14px; border-radius: 8px;
+            background: transparent; color: var(--text);
+            border: 1.5px solid var(--akzent); font-size: 0.9rem;
+            cursor: pointer; font-weight: 600; transition: all 0.2s; white-space: nowrap;
+        }
+        .notizen-neu-btn:hover { background: var(--akzent); color: var(--text-inv); }
+
+        .notizen-liste {
+            display: flex; flex-direction: column; gap: 8px;
+            max-height: 320px; overflow-y: auto; padding-right: 4px;
+        }
+        .notizen-liste::-webkit-scrollbar { width: 5px; }
+        .notizen-liste::-webkit-scrollbar-thumb { background: var(--akzent); border-radius: 3px; }
+
+        .notiz-karte {
+            border: 1.5px solid var(--akzent); border-radius: 10px;
+            padding: 12px 14px; cursor: pointer; transition: all 0.2s;
+            background: transparent; position: relative;
+        }
+        .notiz-karte:hover { background: rgba(58,125,68,0.08); }
+        .notiz-karte-titel {
+            font-weight: 700; font-size: 0.95rem; color: var(--text);
+            margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            padding-right: 60px;
+        }
+        .notiz-karte-vorschau {
+            font-size: 0.82rem; color: var(--text); opacity: 0.55;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .notiz-karte-datum {
+            font-size: 0.75rem; color: var(--text); opacity: 0.4; margin-top: 4px;
+        }
+        .notiz-karte-actions {
+            position: absolute; top: 10px; right: 10px;
+            display: flex; gap: 4px;
+        }
+        .notiz-karte-btn {
+            background: transparent; border: 1px solid var(--akzent);
+            color: var(--text); width: 26px; height: 26px; border-radius: 6px;
+            cursor: pointer; font-size: 0.8rem; display: flex;
+            align-items: center; justify-content: center; transition: all 0.2s;
+        }
+        .notiz-karte-btn:hover { background: var(--akzent); color: var(--text-inv); }
+        .notiz-karte-btn.loeschen:hover { background: #e74c3c; border-color: #e74c3c; color: #fff; }
+
+        .notizen-leer {
+            text-align: center; padding: 30px 0; color: var(--text);
+            opacity: 0.4; font-size: 0.95rem;
+        }
+
+        /* Notiz Editor */
+        .notiz-editor { display: flex; flex-direction: column; gap: 10px; }
+        .notiz-editor-titel {
+            padding: 10px 12px; border-radius: 8px;
+            background: transparent; color: var(--text);
+            border: 1.5px solid var(--akzent); font-size: 1rem;
+            font-family: inherit; font-weight: 700;
+        }
+        .notiz-editor-titel:focus { outline: none; border-color: var(--highlight); }
+        .notiz-editor-titel::placeholder { color: var(--text); opacity: 0.35; font-weight: normal; }
+        .notiz-editor-inhalt {
             padding: 10px 12px; border-radius: 8px;
             background: transparent; color: var(--text);
             border: 1.5px solid var(--akzent); font-size: 0.95rem;
-            font-family: inherit; transition: all 0.2s;
+            font-family: inherit; resize: none; min-height: 180px;
         }
-        .profil-form-input:focus { outline: none; border-color: var(--highlight); box-shadow: 0 0 0 3px rgba(58,125,68,0.15); }
-        .profil-form-input::placeholder { color: var(--text); opacity: 0.35; }
-        .profil-trennlinie { height: 1px; background: var(--akzent); opacity: 0.3; margin: 4px 0; }
-        .profil-form-actions { display: flex; gap: 8px; margin-top: 4px; }
-        .profil-form-actions button {
+        .notiz-editor-inhalt:focus { outline: none; border-color: var(--highlight); }
+        .notiz-editor-inhalt::placeholder { color: var(--text); opacity: 0.35; }
+        .notiz-editor-actions { display: flex; gap: 8px; }
+        .notiz-editor-actions button {
             flex: 1; padding: 10px; border-radius: 8px;
             font-size: 0.95rem; font-weight: 600; cursor: pointer;
             transition: all 0.2s; background: transparent; color: var(--text);
             font-family: inherit;
         }
-        .btn-profil-save { border: 1.5px solid var(--akzent); }
-        .btn-profil-save:hover { background: var(--akzent); color: var(--text-inv); }
-        .btn-profil-cancel { border: 1.5px solid var(--akzent); opacity: 0.6; }
-        .btn-profil-cancel:hover { background: var(--akzent); color: var(--text-inv); opacity: 1; }
-        .profil-success {
-            display: none; background: rgba(58,125,68,0.15);
-            border: 1.5px solid var(--akzent); border-radius: 8px;
-            padding: 10px 14px; font-size: 0.9rem; color: var(--akzent);
-            text-align: center; margin-top: 4px;
-        }
-        .profil-success.sichtbar { display: block; }
+        .btn-notiz-zurueck { border: 1.5px solid var(--akzent); opacity: 0.7; }
+        .btn-notiz-zurueck:hover { background: var(--akzent); color: var(--text-inv); opacity: 1; }
+        .btn-notiz-speichern { border: 1.5px solid var(--akzent); }
+        .btn-notiz-speichern:hover { background: var(--akzent); color: var(--text-inv); }
 
         /* ── LOGOUT MODAL ── */
         .logout-modal {
@@ -527,31 +590,32 @@
 
 <!-- NAVBAR -->
 <div class="navbar">
-    <img src="https://via.placeholder.com/45" alt="KAI Logo">
+    <!-- Logo → Home -->
+    <a href="/" class="navbar-logo" title="Zur Startseite">
+        <img src="https://www.rkm.de/media/site/4af64be89e-1778842221/rkm_logo_1280.png" alt="KAI Logo" style="width:45px;height:45px;border-radius:50%;object-fit:contain;">
+    </a>
+
     <div class="nav-links">
 
         <div class="dropdown">
-            <button class="dropdown-btn" data-i18n="nav.help">Hilfe</button>
+            <button class="dropdown-btn">Hilfe</button>
             <div class="dropdown-content">
-                <a href="#" data-i18n="nav.faq">FAQ</a>
-                <a href="#" data-i18n="nav.contact">Kontakt</a>
-                <a href="#" data-i18n="nav.docs">Dokumentation</a>
+                <a href="#">FAQ</a>
+                <a href="#">Kontakt</a>
+                <a href="#">Dokumentation</a>
             </div>
         </div>
 
         <div class="dropdown">
-            <button class="dropdown-btn" data-i18n="nav.settings">Einstellungen</button>
+            <button class="dropdown-btn">Einstellungen</button>
             <div class="dropdown-content" id="einstellungenMenu">
 
-                <!-- PROFIL mit Untermenü -->
+                <!-- PROFIL mit nur Logout -->
                 <a class="hat-untermenu" id="profilLink" onclick="toggleUntermenu(event, 'profilLink')">
-                    <span data-i18n="nav.profile">Profil</span>
+                    <span>Profil</span>
                     <div class="untermenu">
-                        <div class="profil-untermenu-list">
-                            <button class="profil-untermenu-btn" onclick="openModal('profilSettingsModal')">
-                                ⚙️ Profile Settings
-                            </button>
-                            <button class="profil-untermenu-btn logout-btn" onclick="openLogoutModal()">
+                        <div class="logout-untermenu-list">
+                            <button class="logout-untermenu-btn" onclick="openLogoutModal()">
                                 🚪 Logout
                             </button>
                         </div>
@@ -559,7 +623,7 @@
                 </a>
 
                 <a class="hat-untermenu" id="designLink" onclick="toggleUntermenu(event, 'designLink')">
-                    <span data-i18n="nav.design">Design</span>
+                    <span>Design</span>
                     <div class="untermenu">
                         <div class="theme-grid">
                             <button class="theme-btn" onclick="setTheme('standard')">🌿 Standard</button>
@@ -576,7 +640,7 @@
                 </a>
 
                 <a class="hat-untermenu" id="spracheLink" onclick="toggleUntermenu(event, 'spracheLink')">
-                    <span data-i18n="nav.language">Sprache</span>
+                    <span>Sprache</span>
                     <div class="untermenu">
                         <div class="lang-list">
                             <button class="lang-btn aktiv" id="btn-de" onclick="setLanguage('de', event)">🇩🇪 Deutsch</button>
@@ -589,37 +653,37 @@
         </div>
 
         <div class="dropdown">
-            <button class="dropdown-btn" data-i18n="nav.chats">Chats</button>
+            <button class="dropdown-btn">Chats</button>
             <div class="dropdown-content">
-                <a href="#" data-i18n="nav.newChat">Neuer Chat</a>
-                <a href="#" data-i18n="nav.history">Verlauf</a>
-                <a href="#" data-i18n="nav.archive">Archiv</a>
+                <a href="#">Neuer Chat</a>
+                <a href="#">Verlauf</a>
+                <a href="#">Archiv</a>
             </div>
         </div>
 
         <div class="dropdown">
-            <button class="dropdown-btn" data-i18n="nav.about">Über KAI</button>
+            <button class="dropdown-btn">Über KAI</button>
             <div class="dropdown-content">
-                <a href="#" data-i18n="nav.version">Version</a>
-                <a href="#" data-i18n="nav.team">Team</a>
-                <a href="#" data-i18n="nav.license">Lizenz</a>
+                <a href="#">Version</a>
+                <a href="#">Team</a>
+                <a href="#">Lizenz</a>
             </div>
         </div>
 
         <div class="dropdown">
-            <button class="dropdown-btn" data-i18n="nav.tools">Tools</button>
+            <button class="dropdown-btn">Tools</button>
             <div class="dropdown-content">
                 <a onclick="openModal('rechnerModal')">🧮 Rechner</a>
                 <a onclick="openModal('uebersModal')">🌐 Übersetzer</a>
             </div>
         </div>
 
+        <!-- NOTIZEN -->
         <div class="dropdown">
-            <button class="dropdown-btn" data-i18n="nav.notes">Notizen</button>
+            <button class="dropdown-btn">Notizen</button>
             <div class="dropdown-content">
-                <a href="#" data-i18n="nav.newNote">Neue Notiz</a>
-                <a href="#" data-i18n="nav.allNotes">Alle Notizen</a>
-                <a href="#" data-i18n="nav.deleted">Gelöscht</a>
+                <a onclick="openNotizenModal('liste')">📋 Alle Notizen</a>
+                <a onclick="openNotizenModal('neu')">➕ Neue Notiz</a>
             </div>
         </div>
 
@@ -638,8 +702,8 @@
             </div>
         </div>
         <div class="chat-header-actions">
-            <button class="chat-header-btn" onclick="location.href='/home'" data-i18n="chat.back">← Zurück</button>
-            <button class="chat-header-btn danger" onclick="openDeleteModal()" data-i18n="chat.delete">🗑️ Löschen</button>
+            <button class="chat-header-btn" onclick="location.href='/home'">← Zurück</button>
+            <button class="chat-header-btn danger" onclick="openDeleteModal()">🗑️ Löschen</button>
         </div>
     </div>
 
@@ -668,8 +732,8 @@
         {% else %}
         <div class="empty-chat" id="emptyChat">
             <div class="empty-chat-icon">💬</div>
-            <h2 data-i18n="chat.emptyTitle">Neuer Chat</h2>
-            <p data-i18n="chat.emptyText">Starte ein Gespräch, indem du eine Nachricht eingibst</p>
+            <h2>Neuer Chat</h2>
+            <p>Starte ein Gespräch, indem du eine Nachricht eingibst</p>
         </div>
         {% endif %}
     </div>
@@ -679,54 +743,51 @@
             <textarea
                 class="message-input"
                 id="messageInput"
-                data-i18n-placeholder="chat.placeholder"
                 placeholder="Schreib eine Nachricht... (Shift+Enter für neue Zeile)"
                 onkeypress="handleKeyPress(event)"
             ></textarea>
             <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-                <span id="sendBtnText" data-i18n="chat.send">📤 Senden</span>
+                <span id="sendBtnText">📤 Senden</span>
             </button>
         </div>
     </div>
 </div>
 
-<!-- ── PROFIL SETTINGS MODAL ── -->
-<div class="modal-overlay" id="profilSettingsModal">
-    <div class="modal-box" style="max-width:440px;">
+<!-- ── NOTIZEN MODAL ── -->
+<div class="modal-overlay" id="notizenModal">
+    <div class="modal-box" style="max-width:500px;">
         <div class="modal-header">
-            <h2>⚙️ Profile Settings</h2>
-            <button class="modal-close" onclick="closeModal('profilSettingsModal')">✕</button>
+            <h2 id="notizenModalTitel">📋 Notizen</h2>
+            <button class="modal-close" onclick="closeModal('notizenModal')">✕</button>
         </div>
         <div class="modal-body">
-            <div class="profil-form">
-                <div class="profil-form-group">
-                    <label class="profil-form-label">👤 Benutzername</label>
-                    <input type="text" class="profil-form-input" id="profilUsername" placeholder="Dein Benutzername">
+
+            <!-- LISTE ANSICHT -->
+            <div id="notizenListeView">
+                <div class="notizen-toolbar">
+                    <input type="text" class="notizen-search" id="notizenSuche" placeholder="🔍 Notizen durchsuchen..." oninput="notizenFiltern()">
+                    <button class="notizen-neu-btn" onclick="notizenZeigeEditor()">➕ Neu</button>
                 </div>
-                <div class="profil-form-group">
-                    <label class="profil-form-label">📧 E-Mail</label>
-                    <input type="email" class="profil-form-input" id="profilEmail" placeholder="deine@email.de">
-                </div>
-                <div class="profil-trennlinie"></div>
-                <div class="profil-form-group">
-                    <label class="profil-form-label">🔒 Neues Passwort</label>
-                    <input type="password" class="profil-form-input" id="profilPasswort" placeholder="Neues Passwort (leer lassen = unverändert)">
-                </div>
-                <div class="profil-form-group">
-                    <label class="profil-form-label">🔒 Passwort bestätigen</label>
-                    <input type="password" class="profil-form-input" id="profilPasswortWdh" placeholder="Passwort wiederholen">
-                </div>
-                <div class="profil-success" id="profilSuccess">✅ Änderungen gespeichert!</div>
-                <div class="profil-form-actions">
-                    <button class="btn-profil-cancel" onclick="closeModal('profilSettingsModal')">Abbrechen</button>
-                    <button class="btn-profil-save" onclick="profilSpeichern()">💾 Speichern</button>
+                <div class="notizen-liste" id="notizenListe"></div>
+            </div>
+
+            <!-- EDITOR ANSICHT -->
+            <div id="notizenEditorView" style="display:none;">
+                <div class="notiz-editor">
+                    <input type="text" class="notiz-editor-titel" id="notizTitel" placeholder="Titel der Notiz...">
+                    <textarea class="notiz-editor-inhalt" id="notizInhalt" placeholder="Schreib deine Notiz hier..."></textarea>
+                    <div class="notiz-editor-actions">
+                        <button class="btn-notiz-zurueck" onclick="notizenZeigeListe()">← Zurück</button>
+                        <button class="btn-notiz-speichern" onclick="notizSpeichern()">💾 Speichern</button>
+                    </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
 
-<!-- ── LOGOUT MODAL ── -->
+<!-- LOGOUT MODAL -->
 <div class="logout-modal" id="logoutModal">
     <div class="logout-modal-content">
         <div class="logout-modal-icon">🚪</div>
@@ -853,7 +914,7 @@
                     </div>
                 </div>
                 <div class="color-row">
-                    <span class="color-row-label"><span class="color-preview" id="prev-akzent"></span>🔷 Akzent (Linien)</span>
+                    <span class="color-row-label"><span class="color-preview" id="prev-akzent"></span>🔷 Akzent</span>
                     <div class="color-input-wrap">
                         <input type="color" id="cp-akzent" oninput="syncColor('akzent')">
                         <input type="text" class="color-hex" id="hex-akzent" maxlength="7" oninput="syncHex('akzent')" placeholder="#3a7d44">
@@ -885,20 +946,148 @@
 <!-- DELETE MODAL -->
 <div class="delete-modal" id="deleteModal">
     <div class="delete-modal-content">
-        <div class="delete-modal-header" data-i18n="modal.title">🗑️ Chat löschen?</div>
-        <div class="delete-modal-body" data-i18n="modal.body">
+        <div class="delete-modal-header">🗑️ Chat löschen?</div>
+        <div class="delete-modal-body">
             Bist du sicher, dass du diesen Chat löschen möchtest?
             Diese Aktion kann nicht rückgängig gemacht werden.
         </div>
         <div class="delete-modal-footer">
-            <button class="btn-cancel" onclick="closeDeleteModal()" data-i18n="modal.cancel">Abbrechen</button>
-            <button class="btn-delete" onclick="deleteChat()" data-i18n="modal.confirm">Ja, löschen</button>
+            <button class="btn-cancel" onclick="closeDeleteModal()">Abbrechen</button>
+            <button class="btn-delete" onclick="deleteChat()">Ja, löschen</button>
         </div>
     </div>
 </div>
 
 <script>
 const chatId = {{ chat_id }};
+
+// ══════════════════════════════════════════
+//  COOKIE HILFSFUNKTIONEN
+// ══════════════════════════════════════════
+function cookieSetzen(name, wert, tage = 365) {
+    const ablauf = new Date()
+    ablauf.setDate(ablauf.getDate() + tage)
+    document.cookie = `${name}=${encodeURIComponent(wert)}; expires=${ablauf.toUTCString()}; path=/; SameSite=Lax`
+}
+function cookieLesen(name) {
+    const treffer = document.cookie.split('; ').find(r => r.startsWith(name + '='))
+    return treffer ? decodeURIComponent(treffer.split('=')[1]) : null
+}
+
+// ══════════════════════════════════════════
+//  NOTIZEN (gespeichert in Cookies als JSON)
+// ══════════════════════════════════════════
+let notizen = []
+let bearbeitenIndex = -1   // -1 = neue Notiz, sonst Index der Notiz
+
+function notizenLaden() {
+    const roh = cookieLesen('kai_notizen')
+    try { notizen = roh ? JSON.parse(roh) : [] }
+    catch { notizen = [] }
+}
+
+function notizenSpeichernCookie() {
+    cookieSetzen('kai_notizen', JSON.stringify(notizen))
+}
+
+function notizenRendern(filter = '') {
+    const liste = document.getElementById('notizenListe')
+    const gefilter = filter
+        ? notizen.filter(n =>
+            n.titel.toLowerCase().includes(filter.toLowerCase()) ||
+            n.inhalt.toLowerCase().includes(filter.toLowerCase()))
+        : notizen
+
+    if (gefilter.length === 0) {
+        liste.innerHTML = `<div class="notizen-leer">${filter ? '🔍 Keine Notizen gefunden.' : '📭 Noch keine Notizen.<br>Erstelle deine erste!'}</div>`
+        return
+    }
+
+    liste.innerHTML = gefilter.map((n, i) => {
+        const echterIndex = notizen.indexOf(n)
+        const datum = new Date(n.datum).toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })
+        const vorschau = n.inhalt.replace(/\n/g, ' ').substring(0, 60) + (n.inhalt.length > 60 ? '…' : '')
+        return `
+        <div class="notiz-karte" onclick="notizBearbeiten(${echterIndex})">
+            <div class="notiz-karte-titel">${escapeHtml(n.titel || 'Ohne Titel')}</div>
+            <div class="notiz-karte-vorschau">${escapeHtml(vorschau) || '(leer)'}</div>
+            <div class="notiz-karte-datum">🕐 ${datum}</div>
+            <div class="notiz-karte-actions">
+                <button class="notiz-karte-btn loeschen" onclick="notizLoeschen(event, ${echterIndex})" title="Löschen">🗑️</button>
+            </div>
+        </div>`
+    }).join('')
+}
+
+function notizenFiltern() {
+    const suche = document.getElementById('notizenSuche').value
+    notizenRendern(suche)
+}
+
+function openNotizenModal(ansicht = 'liste') {
+    notizenLaden()
+    document.getElementById('notizenModal').classList.add('active')
+    document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('offen'))
+    angeklickt = false
+    if (ansicht === 'neu') {
+        notizenZeigeEditor()
+    } else {
+        notizenZeigeListe()
+    }
+}
+
+function notizenZeigeListe() {
+    document.getElementById('notizenListeView').style.display = 'block'
+    document.getElementById('notizenEditorView').style.display = 'none'
+    document.getElementById('notizenModalTitel').textContent = '📋 Notizen'
+    document.getElementById('notizenSuche').value = ''
+    bearbeitenIndex = -1
+    notizenRendern()
+}
+
+function notizenZeigeEditor(titel = '', inhalt = '') {
+    document.getElementById('notizenListeView').style.display = 'none'
+    document.getElementById('notizenEditorView').style.display = 'block'
+    document.getElementById('notizenModalTitel').textContent = bearbeitenIndex >= 0 ? '✏️ Notiz bearbeiten' : '➕ Neue Notiz'
+    document.getElementById('notizTitel').value = titel
+    document.getElementById('notizInhalt').value = inhalt
+    document.getElementById('notizTitel').focus()
+}
+
+function notizBearbeiten(index) {
+    bearbeitenIndex = index
+    const n = notizen[index]
+    notizenZeigeEditor(n.titel, n.inhalt)
+}
+
+function notizSpeichern() {
+    const titel  = document.getElementById('notizTitel').value.trim()
+    const inhalt = document.getElementById('notizInhalt').value.trim()
+
+    if (!titel && !inhalt) {
+        alert('❌ Bitte gib mindestens einen Titel oder Inhalt ein!')
+        return
+    }
+
+    if (bearbeitenIndex >= 0) {
+        // Bestehende Notiz aktualisieren
+        notizen[bearbeitenIndex] = { titel, inhalt, datum: new Date().toISOString() }
+    } else {
+        // Neue Notiz vorne einfügen
+        notizen.unshift({ titel, inhalt, datum: new Date().toISOString() })
+    }
+
+    notizenSpeichernCookie()
+    notizenZeigeListe()
+}
+
+function notizLoeschen(event, index) {
+    event.stopPropagation()
+    if (!confirm(`🗑️ Notiz "${notizen[index].titel || 'Ohne Titel'}" wirklich löschen?`)) return
+    notizen.splice(index, 1)
+    notizenSpeichernCookie()
+    notizenRendern(document.getElementById('notizenSuche').value)
+}
 
 // ── THEMES ──
 const themes = {
@@ -914,36 +1103,10 @@ const themes = {
 const defaultColors = { hintergrund:'#f5f5f5', navbar:'#ffffff', akzent:'#3a7d44', highlight:'#4caf50', text:'#1b1b1b' }
 function applyThemeVars(t) { Object.entries(t).forEach(([k,v]) => document.documentElement.style.setProperty(k,v)) }
 
-// ── TRANSLATIONS ──
+// ── SPRACHE ──
 const translations = {
-    de: {
-        'nav.help':'Hilfe','nav.faq':'FAQ','nav.contact':'Kontakt','nav.docs':'Dokumentation',
-        'nav.settings':'Einstellungen','nav.profile':'Profil','nav.design':'Design','nav.language':'Sprache',
-        'nav.chats':'Chats','nav.newChat':'Neuer Chat','nav.history':'Verlauf','nav.archive':'Archiv',
-        'nav.about':'Über KAI','nav.version':'Version','nav.team':'Team','nav.license':'Lizenz',
-        'nav.tools':'Tools','nav.notes':'Notizen','nav.newNote':'Neue Notiz','nav.allNotes':'Alle Notizen','nav.deleted':'Gelöscht',
-        'chat.back':'← Zurück','chat.delete':'🗑️ Löschen',
-        'chat.emptyTitle':'Neuer Chat','chat.emptyText':'Starte ein Gespräch, indem du eine Nachricht eingibst',
-        'chat.placeholder':'Schreib eine Nachricht... (Shift+Enter für neue Zeile)',
-        'chat.send':'📤 Senden','chat.sending':'⏳ Wird gesendet...',
-        'modal.title':'🗑️ Chat löschen?',
-        'modal.body':'Bist du sicher, dass du diesen Chat löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.',
-        'modal.cancel':'Abbrechen','modal.confirm':'Ja, löschen',
-    },
-    en: {
-        'nav.help':'Help','nav.faq':'FAQ','nav.contact':'Contact','nav.docs':'Documentation',
-        'nav.settings':'Settings','nav.profile':'Profile','nav.design':'Design','nav.language':'Language',
-        'nav.chats':'Chats','nav.newChat':'New Chat','nav.history':'History','nav.archive':'Archive',
-        'nav.about':'About KAI','nav.version':'Version','nav.team':'Team','nav.license':'License',
-        'nav.tools':'Tools','nav.notes':'Notes','nav.newNote':'New Note','nav.allNotes':'All Notes','nav.deleted':'Deleted',
-        'chat.back':'← Back','chat.delete':'🗑️ Delete',
-        'chat.emptyTitle':'New Chat','chat.emptyText':'Start a conversation by typing a message',
-        'chat.placeholder':'Type a message... (Shift+Enter for new line)',
-        'chat.send':'📤 Send','chat.sending':'⏳ Sending...',
-        'modal.title':'🗑️ Delete Chat?',
-        'modal.body':'Are you sure you want to delete this chat? This action cannot be undone.',
-        'modal.cancel':'Cancel','modal.confirm':'Yes, delete',
-    }
+    de: { 'chat.send':'📤 Senden', 'chat.sending':'⏳ Wird gesendet...' },
+    en: { 'chat.send':'📤 Send',   'chat.sending':'⏳ Sending...' }
 }
 let aktiveSprache = 'de'
 function setLanguage(lang, e) {
@@ -951,9 +1114,6 @@ function setLanguage(lang, e) {
     aktiveSprache = lang
     document.getElementById('btn-de').classList.toggle('aktiv', lang==='de')
     document.getElementById('btn-en').classList.toggle('aktiv', lang==='en')
-    const t = translations[lang]
-    document.querySelectorAll('[data-i18n]').forEach(el => { const k=el.getAttribute('data-i18n'); if(t[k]) el.textContent=t[k] })
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const k=el.getAttribute('data-i18n-placeholder'); if(t[k]) el.placeholder=t[k] })
     document.documentElement.lang = lang
 }
 
@@ -992,7 +1152,7 @@ document.addEventListener('click', e => {
     alleUntermenues.forEach(id => document.getElementById(id).classList.remove('untermenu-offen'))
     angeklickt=false; durchHoverOffen=false
 })
-document.querySelectorAll('.theme-btn, .lang-btn, .profil-untermenu-btn').forEach(btn => btn.addEventListener('click', e => e.stopPropagation()))
+document.querySelectorAll('.theme-btn, .lang-btn, .logout-untermenu-btn').forEach(btn => btn.addEventListener('click', e => e.stopPropagation()))
 
 // ── MODALS ──
 function openModal(id) {
@@ -1006,7 +1166,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', e => { if (e.target===overlay) closeModal(overlay.id) })
 })
 
-// ── LOGOUT MODAL ──
+// ── LOGOUT ──
 function openLogoutModal() {
     document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('offen'))
     alleUntermenues.forEach(id => document.getElementById(id).classList.remove('untermenu-offen'))
@@ -1015,24 +1175,9 @@ function openLogoutModal() {
 }
 function closeLogoutModal() { document.getElementById('logoutModal').classList.remove('active') }
 document.getElementById('logoutModal').addEventListener('click', function(e) { if (e.target===this) closeLogoutModal() })
-
 async function doLogout() {
-    try {
-        const res = await fetch('/logout', { method: 'POST' })
-        if (res.ok) window.location.href = '/login'
-        else window.location.href = '/login'
-    } catch(err) { window.location.href = '/login' }
-}
-
-// ── PROFIL SETTINGS ──
-function profilSpeichern() {
-    const pw  = document.getElementById('profilPasswort').value
-    const pw2 = document.getElementById('profilPasswortWdh').value
-    if (pw && pw !== pw2) { alert('❌ Passwörter stimmen nicht überein!'); return }
-    // Hier kannst du später einen fetch('/profil/update') einbauen
-    const success = document.getElementById('profilSuccess')
-    success.classList.add('sichtbar')
-    setTimeout(() => success.classList.remove('sichtbar'), 3000)
+    try { const res = await fetch('/logout', { method: 'POST' }); window.location.href = '/login' }
+    catch { window.location.href = '/login' }
 }
 
 // ── COLOR PICKER ──
@@ -1152,6 +1297,7 @@ document.addEventListener('DOMContentLoaded', () => {
         el.innerHTML = parseMarkdown(el.getAttribute('data-raw'))
     })
     scrollToBottom()
+    notizenLaden()
 })
 
 function addMessage(content, role) {
