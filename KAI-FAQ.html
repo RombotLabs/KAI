@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KAI – FAQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#eef2ec;
+    --paper-raised:#f7faf5;
+    --ink:#1f2a24;
+    --ink-soft:#4c5a51;
+    --navy:#2b4c6f;
+    --navy-soft:#5c7a99;
+    --stamp:#a3384a;
+    --line:#c9d2c4;
+    --mono-bg:#e3e9de;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-font-smoothing:antialiased;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Source Serif 4', Georgia, serif;
+    line-height:1.6;
+  }
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:0 24px 96px;
+  }
+  header{
+    padding:72px 0 40px;
+    position:relative;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--navy);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:22px;
+    height:1px;
+    background:var(--navy-soft);
+  }
+  h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:clamp(40px, 8vw, 60px);
+    letter-spacing:-0.02em;
+    margin:0 0 14px;
+    color:var(--ink);
+  }
+  .tagline{
+    font-size:19px;
+    color:var(--ink-soft);
+    max-width:46ch;
+    margin:0;
+  }
+  .stamp{
+    position:absolute;
+    top:58px;
+    right:24px;
+    width:118px;
+    height:118px;
+    border:2px dashed var(--stamp);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transform:rotate(-11deg);
+    color:var(--stamp);
+    font-family:'IBM Plex Mono', monospace;
+    text-align:center;
+    font-size:11px;
+    line-height:1.35;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    font-weight:600;
+    opacity:.9;
+  }
+  .stamp span{display:block;}
+  .stamp .big{
+    font-size:15px;
+    font-family:'Space Grotesk', sans-serif;
+    letter-spacing:.02em;
+    margin:2px 0;
+  }
+  @media (max-width:600px){
+    .stamp{ position:static; margin-top:24px; transform:rotate(-6deg); }
+  }
+
+  .meta-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:28px;
+  }
+  .pill{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    background:var(--mono-bg);
+    color:var(--navy);
+    padding:6px 12px;
+    border-radius:100px;
+    letter-spacing:.02em;
+  }
+
+  .faq-list{
+    margin-top:48px;
+    border-top:1px solid var(--line);
+  }
+  details{
+    border-bottom:1px solid var(--line);
+    padding:22px 0;
+  }
+  summary{
+    cursor:pointer;
+    list-style:none;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:20px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:19px;
+    color:var(--ink);
+  }
+  summary::-webkit-details-marker{ display:none; }
+  .q-index{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--navy-soft);
+    font-weight:500;
+    flex-shrink:0;
+    padding-top:3px;
+  }
+  summary .qtext{ flex:1; }
+  .chevron{
+    flex-shrink:0;
+    width:20px;
+    height:20px;
+    color:var(--navy);
+    transition:transform .25s ease;
+  }
+  details[open] .chevron{ transform:rotate(45deg); }
+  .answer{
+    padding:14px 0 4px 34px;
+    color:var(--ink-soft);
+    font-size:16.5px;
+    max-width:60ch;
+  }
+  .answer p{ margin:0 0 12px; }
+  .answer ul{ margin:0 0 12px; padding-left:20px; }
+  .answer li{ margin-bottom:8px; }
+  code, .file{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.88em;
+    background:var(--mono-bg);
+    color:var(--navy);
+    padding:1px 6px;
+    border-radius:4px;
+  }
+  a{ color:var(--navy); text-decoration-color:var(--navy-soft); }
+
+  footer{
+    margin-top:64px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  footer a{ color:var(--navy); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Projekt-FAQ</div>
+    <h1>KAI</h1>
+    <p class="tagline">Eine DSGVO-freundliche KI-Chat-Plattform, entwickelt für den Einsatz an Schulen.</p>
+    <div class="stamp">
+      <span>DSGVO</span>
+      <span class="big">friendly</span>
+      <span>by design</span>
+    </div>
+    <div class="meta-row">
+      <span class="pill">MIT-Lizenz</span>
+      <span class="pill">RombotLabs/KAI</span>
+      <span class="pill">Python</span>
+    </div>
+  </header>
+
+  <section class="faq-list">
+
+    <details open>
+      <summary><span class="q-index">01</span><span class="qtext">Was ist KAI?</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></summary>
+      <div class="answer">
+        <p>KAI ist eine DSGVO-freundliche KI-Chat-Plattform, die speziell für den Einsatz an Schulen entwickelt wird.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="q-index">02</span><span class="qtext">Wer entwickelt KAI?</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></summary>
+      <div class="answer">
+        <p>Das Projekt wird von RombotLabs auf GitHub entwickelt und gepflegt, im Repository <code>RombotLabs/KAI</code>.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="q-index">03</span><span class="qtext">Ist KAI Open Source?</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></summary>
+      <div class="answer">
+        <p>Ja. Der Quellcode ist öffentlich auf GitHub einsehbar und steht unter der MIT-Lizenz.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="q-index">04</span><span class="qtext">Unter welcher Lizenz steht KAI?</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></summary>
+      <div class="answer">
+        <p>KAI wird unter der MIT-Lizenz veröffentlicht, die eine freie Nutzung, Anpassung und Weiterverbreitung erlaubt.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="q-index">05</span><span class="qtext">Was bedeutet „DSGVO-freundlich" bei KAI?</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></summary>
+      <div class="answer">
+        <p>Laut Projektbeschreibung ist KAI so konzipiert, dass es den Anforderungen der Datenschutz-Grundverordnung für den Schuleinsatz gerecht wird. Konkrete technische Details oder eine offizielle Zertifizierung dazu sind im Repository aktuell nicht dokumentiert.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="q-index">06</span><span class="qtext">Aus welchen Komponenten besteht das Projekt?</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></summary>
+      <div class="answer">
+        <p>Zu den zentralen Dateien gehören unter anderem:</p>
+        <ul>
+          <li><code>app.py</code> – die Hauptanwendung</li>
+          <li><code>ufm.py</code> (in <code>libs/</code>) – eine Bibliothek zur Verwaltung von Nutzer-Chats und hochgeladenen Dateien; für jeden neuen Nutzer wird automatisch ein eigenes Verzeichnis mit dessen Chats angelegt</li>
+          <li><code>passwd_hasher.py</code> – vermutlich zuständig für das sichere Hashen von Passwörtern</li>
+          <li><code>templates/</code> – Vorlagen für die Benutzeroberfläche</li>
+          <li><code>requirements.txt</code> – Liste der benötigten Python-Pakete</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="q-index">07</span><span class="qtext">Wie kann ich zum Projekt beitragen?</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></summary>
+      <div class="answer">
+        <p>Für Entwickler:innen gilt laut README: Wird ein neues Python-Modul per pip installiert, muss der Modulname am Ende der <code>requirements.txt</code> ergänzt werden.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="q-index">08</span><span class="qtext">Gibt es eine ausführliche Dokumentation?</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></summary>
+      <div class="answer">
+        <p>Im Repository ist aktuell nur eine kurze README mit grundlegenden Hinweisen für Entwickler:innen vorhanden. Eine ausführliche Setup- oder Nutzungsanleitung ist derzeit nicht dokumentiert.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="q-index">09</span><span class="qtext">Wie viele Personen nutzen das Projekt bereits?</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></summary>
+      <div class="answer">
+        <p>Der Star- und Fork-Zähler auf GitHub steht aktuell bei 0 – es handelt sich offenbar um ein noch junges bzw. internes Projekt in früher Entwicklungsphase.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="q-index">10</span><span class="qtext">Wo finde ich den Quellcode?</span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></summary>
+      <div class="answer">
+        <p>Direkt im GitHub-Repository: <a href="https://github.com/rombotlabs/kai" target="_blank" rel="noopener">github.com/RombotLabs/KAI</a></p>
+      </div>
+    </details>
+
+  </section>
+
+  <footer>
+    <span>KAI · RombotLabs</span>
+    <span><a href="https://github.com/rombotlabs/kai" target="_blank" rel="noopener">github.com/RombotLabs/KAI</a></span>
+  </footer>
+
+</div>
+</body>
+</html>
