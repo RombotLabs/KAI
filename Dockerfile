@@ -7,7 +7,7 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1
 
 # Set work directory
-WORKDIR /app
+WORKDIR /
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -16,12 +16,12 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
-COPY requirements.txt /app/
+COPY requirements.txt /
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
 # Copy project code
-COPY . /app/
+COPY . /
 
 # Create a startup script
 RUN echo '#!/bin/bash\n\
@@ -40,11 +40,11 @@ else\n\
 fi\n\
 \n\
 echo "Starting Flask application..."\n\
-exec python app.py' > /app/entrypoint.sh && \
-chmod +x /app/entrypoint.sh
+exec python app.py' > /entrypoint.sh && \
+chmod +x /entrypoint.sh
 
 # Expose port for Flask application
 EXPOSE 5000
 
 # Run entrypoint script
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
