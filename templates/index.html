@@ -3,156 +3,775 @@
 {% block title %}KAI - Home{% endblock %}
 
 {% block content %}
-<div class="container">
+<style>
+    :root {
+        --hintergrund: #f5f5f5;
+        --navbar: #ffffff;
+        --akzent: #3a7d44;
+        --highlight: #4caf50;
+        --text: #1b1b1b;
+        --text-inv: #ffffff;
+        --bubble-bg: rgba(255,255,255,0.85);
+        --input-bg: rgba(255,255,255,0.6);
+        --input-area-bg: rgba(255,255,255,0.7);
+        --shadow: 0 2px 8px rgba(0,0,0,0.08);
+        --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+
+    body {
+        background-color: var(--hintergrund);
+        color: var(--text);
+        min-height: 100vh;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    #hintergrund-canvas {
+        position: fixed; top: 0; left: 0;
+        width: 100%; height: 100%;
+        z-index: 0; pointer-events: none;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 10px 20px;
+        width: 100%;
+        left: 0; right: 0;
+        background-color: var(--navbar);
+        border-bottom: 2px solid var(--akzent);
+        box-shadow: var(--shadow);
+        position: fixed; z-index: 9999; overflow: visible;
+        transition: background-color 0.3s;
+    }
+
+    .navbar-logo {
+        width: 45px; height: 45px; border-radius: 50%; object-fit: contain;
+        cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+        text-decoration: none; display: block;
+    }
+    .navbar-logo:hover { transform: scale(1.08); box-shadow: 0 0 0 3px var(--akzent); border-radius: 50%; }
+
+    .nav-links { display: flex; flex-direction: row-reverse; gap: 10px; overflow: visible; }
+
+    .dropdown { position: relative; overflow: visible; }
+    .dropdown-btn {
+        background: transparent; color: var(--text);
+        border: 1.5px solid var(--akzent);
+        padding: 8px 16px; border-radius: 8px;
+        cursor: pointer; font-size: 14px; transition: all 0.2s; font-weight: 600;
+    }
+    .dropdown-btn:hover { background-color: var(--akzent); color: var(--text-inv); }
+
+    .dropdown-content {
+        display: none; position: absolute; top: calc(100% + 5px); right: 0;
+        background-color: var(--navbar);
+        border: 1.5px solid var(--akzent);
+        border-radius: 8px; min-width: 160px; z-index: 99999;
+        padding: 5px 0; box-shadow: var(--shadow-lg);
+        transition: background-color 0.3s;
+    }
+    .dropdown-content a {
+        display: block; padding: 10px 15px; color: var(--text);
+        text-decoration: none; font-size: 13px; transition: background 0.2s;
+        cursor: pointer; white-space: nowrap; user-select: none;
+    }
+    .dropdown-content a:hover { background-color: var(--akzent); color: var(--text-inv); }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .dropdown-content.offen { display: block; animation: slideDown 0.2s ease; }
+
+    .hat-untermenu { position: relative; }
+    .hat-untermenu::after { content: '◀'; font-size: 10px; float: right; margin-left: 8px; }
+
+    .untermenu {
+        display: none; position: absolute; top: 0; right: calc(100% + 5px);
+        background-color: var(--navbar);
+        border: 1.5px solid var(--akzent);
+        border-radius: 8px; min-width: 190px; z-index: 999999; padding: 5px;
+        box-shadow: var(--shadow-lg); transition: background-color 0.3s;
+    }
+    .hat-untermenu.untermenu-offen .untermenu { display: block; animation: slideDown 0.2s ease; }
+
+    .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 3px; }
+    .theme-btn {
+        background-color: transparent; color: var(--text);
+        border: 1px solid var(--akzent); padding: 6px 8px; border-radius: 6px;
+        cursor: pointer; font-size: 12px; transition: all 0.2s; text-align: left;
+    }
+    .theme-btn:hover { background-color: var(--akzent); color: var(--text-inv); }
+    .theme-btn.custom-btn {
+        grid-column: span 2; background: transparent; color: var(--text);
+        border: 1.5px solid var(--akzent); font-weight: bold;
+    }
+    .theme-btn.custom-btn:hover { background-color: var(--akzent); color: var(--text-inv); }
+
+    .lang-list { display: flex; flex-direction: column; gap: 5px; padding: 5px; }
+    .lang-btn {
+        background-color: transparent; color: var(--text);
+        border: 1px solid var(--akzent); padding: 8px 12px; border-radius: 6px;
+        cursor: pointer; font-size: 13px; transition: all 0.2s;
+        text-align: left; display: flex; align-items: center; gap: 8px;
+    }
+    .lang-btn:hover { background-color: var(--akzent); color: var(--text-inv); }
+    .lang-btn.aktiv { background-color: var(--akzent); color: var(--text-inv); font-weight: bold; }
+
+    .trennlinie { height: 2px; background: var(--akzent); position: relative; z-index: 1; }
+
+    /* ── SEITEN INHALT ── */
+    .seite {
+        position: relative; z-index: 1;
+        max-width: 1100px; margin: 0 auto;
+        padding: 2.5rem 1.5rem;
+    }
+
+    /* ── KARTEN ── */
+    .kai-card {
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        border: 1.5px solid var(--akzent);
+        border-radius: 14px;
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .kai-card:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(0,0,0,0.15); }
+
+    .kai-card-header {
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1.5px solid var(--akzent);
+        background: transparent;
+    }
+    .kai-card-header h2 { font-size: 1.2rem; color: var(--text); margin: 0; }
+
+    .kai-card-body { padding: 1.5rem; }
+    .kai-card-body p { color: var(--text); line-height: 1.6; margin-bottom: 0.75rem; }
+    .kai-card-body p:last-child { margin-bottom: 0; }
+
+    /* ── GRID LAYOUTS ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem; }
+    .grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+
+    /* ── BUTTONS ── */
+    .kai-btn {
+        display: flex; align-items: center; justify-content: center;
+        padding: 0.75rem 1.5rem; border-radius: 8px;
+        font-size: 1rem; font-weight: 600; cursor: pointer;
+        text-decoration: none; transition: all 0.2s;
+        border: 1.5px solid var(--akzent);
+        background: transparent; color: var(--text);
+        font-family: inherit;
+    }
+    .kai-btn:hover { background: var(--akzent); color: var(--text-inv); transform: translateY(-1px); box-shadow: var(--shadow); }
+    .kai-btn-secondary { border-color: var(--akzent); opacity: 0.8; }
+    .kai-btn-secondary:hover { opacity: 1; }
+
+    /* ── BADGE ── */
+    .kai-badge {
+        display: inline-block; padding: 3px 10px; border-radius: 20px;
+        font-size: 0.82rem; font-weight: 600; border: 1.5px solid var(--akzent);
+    }
+    .kai-badge-success { border-color: var(--akzent); color: var(--akzent); }
+    .kai-badge-danger  { border-color: #e74c3c; color: #e74c3c; }
+
+    /* ── SECTION TITEL ── */
+    .section-titel {
+        font-size: 1.5rem; font-weight: 700; color: var(--text);
+        margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;
+    }
+
+    /* ── FEATURE ICON KARTEN ── */
+    .feature-icon { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+    .feature-karte { text-align: center; }
+    .feature-karte h3 { font-size: 1.05rem; margin-bottom: 0.5rem; color: var(--text); }
+    .feature-karte p  { font-size: 0.9rem; color: var(--text); opacity: 0.65; line-height: 1.5; }
+
+    /* ── HERO ── */
+    .hero-wrap { max-width: 800px; margin: 3rem auto; }
+    .hero-titel { text-align: center; font-size: 3rem; margin: 0; color: var(--text); }
+    .hero-sub   { text-align: center; margin: 0.75rem 0 0 0; font-size: 1.2rem; color: var(--text); opacity: 0.75; }
+    .hero-text  { font-size: 1.05rem; text-align: center; color: var(--text); opacity: 0.65; margin-bottom: 2rem; line-height: 1.6; }
+    .hero-divider { border: none; border-top: 1.5px solid var(--akzent); margin: 2rem 0; opacity: 0.4; }
+    .hero-footer-text { text-align: center; font-size: 0.92rem; color: var(--text); opacity: 0.55; line-height: 1.6; }
+
+    .was-kann-titel { text-align: center; font-size: 1.5rem; font-weight: 700; margin: 3rem 0 1.5rem 0; color: var(--text); }
+
+    /* ── MODALS ── */
+    .modal-overlay {
+        display: none; position: fixed; top: 0; left: 0;
+        width: 100%; height: 100%; background: rgba(0,0,0,0.4);
+        z-index: 100000; justify-content: center; align-items: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+        background: var(--navbar); border: 1.5px solid var(--akzent);
+        border-radius: 14px; padding: 0; max-width: 420px; width: 95%;
+        box-shadow: var(--shadow-lg); animation: modalIn 0.25s ease; overflow: hidden;
+    }
+    @keyframes modalIn {
+        from { opacity: 0; transform: scale(0.92); }
+        to   { opacity: 1; transform: scale(1); }
+    }
+    .modal-header {
+        background: transparent; border-bottom: 1.5px solid var(--akzent);
+        padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-header h2 { font-size: 1.1rem; color: var(--text); margin: 0; }
+    .modal-close {
+        background: transparent; border: 1.5px solid var(--akzent);
+        color: var(--text); width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+        font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .modal-close:hover { background: var(--akzent); color: var(--text-inv); }
+    .modal-body { padding: 1.5rem; background: transparent; }
+
+    /* ── LOGOUT MODAL ── */
+    .logout-modal {
+        display: none; position: fixed; top: 0; left: 0;
+        width: 100%; height: 100%; background: rgba(0,0,0,0.4);
+        z-index: 99999; justify-content: center; align-items: center;
+    }
+    .logout-modal.active { display: flex; }
+    .logout-modal-content {
+        background: var(--navbar); border: 1.5px solid var(--akzent);
+        border-radius: 12px; padding: 2rem; max-width: 380px; width: 95%;
+        box-shadow: var(--shadow-lg); animation: modalIn 0.25s ease;
+    }
+    .logout-modal-icon { font-size: 2.5rem; text-align: center; margin-bottom: 0.75rem; }
+    .logout-modal-header { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text); text-align: center; }
+    .logout-modal-body { margin-bottom: 1.5rem; color: var(--text); opacity: 0.7; line-height: 1.5; text-align: center; font-size: 0.95rem; }
+    .logout-modal-footer { display: flex; gap: 1rem; justify-content: center; }
+    .logout-modal-footer button {
+        padding: 0.75rem 1.8rem; border-radius: 8px;
+        cursor: pointer; font-weight: 600; transition: all 0.3s;
+        background: transparent; color: var(--text); font-family: inherit; font-size: 0.95rem;
+    }
+    .btn-logout-cancel { border: 1.5px solid var(--akzent); }
+    .btn-logout-cancel:hover { background: var(--akzent); color: var(--text-inv); }
+    .btn-logout-confirm { border: 1.5px solid #e74c3c; color: #e74c3c; }
+    .btn-logout-confirm:hover { background: #e74c3c; color: #ffffff; }
+
+    /* ── COLOR PICKER ── */
+    .color-picker-grid { display: flex; flex-direction: column; gap: 12px; }
+    .color-row { display: flex; align-items: center; justify-content: space-between; background: transparent; padding: 10px 14px; border-radius: 8px; border: 1.5px solid var(--akzent); }
+    .color-row-label { font-size: 0.9rem; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .color-preview { width: 18px; height: 18px; border-radius: 4px; border: 1px solid var(--akzent); display: inline-block; flex-shrink: 0; }
+    .color-input-wrap { display: flex; align-items: center; gap: 8px; }
+    .color-input-wrap input[type="color"] { width: 36px; height: 36px; border: none; border-radius: 6px; cursor: pointer; background: none; padding: 0; }
+    .color-hex { width: 72px; padding: 5px 8px; border-radius: 6px; background: transparent; color: var(--text); border: 1.5px solid var(--akzent); font-size: 0.82rem; font-family: monospace; text-align: center; }
+    .color-hex:focus { outline: none; border-color: var(--highlight); }
+    .color-picker-actions { display: flex; gap: 8px; margin-top: 6px; }
+    .color-picker-actions button { flex: 1; padding: 10px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text); }
+    .btn-apply { border: 1.5px solid var(--akzent); }
+    .btn-apply:hover { background: var(--akzent); color: var(--text-inv); }
+    .btn-reset { border: 1.5px solid var(--akzent); opacity: 0.7; }
+    .btn-reset:hover { background: var(--akzent); color: var(--text-inv); opacity: 1; }
+
+    .aurora-bg { animation: auroraBG 8s ease infinite alternate; }
+    @keyframes auroraBG {
+        0%   { background-color: #0d0d2b; }
+        50%  { background-color: #0d2b1a; }
+        100% { background-color: #1a0533; }
+    }
+
+    @media (max-width: 768px) {
+        .grid-2 { grid-template-columns: 1fr; }
+        .hero-titel { font-size: 2rem; }
+    }
+</style>
+
+<canvas id="hintergrund-canvas"></canvas>
+
+<!-- ── NAVBAR ── -->
+<div class="navbar">
+    <a href="/home" class="navbar-logo" title="Zur Startseite">
+        <img src="https://www.rkm.de/media/site/4af64be89e-1778842221/rkm_logo_1280.png" alt="KAI Logo" style="width:45px;height:45px;border-radius:50%;object-fit:contain;">
+    </a>
+
+    <div class="nav-links">
+
+        <!-- HILFE -->
+        <div class="dropdown">
+            <button class="dropdown-btn">Hilfe</button>
+            <div class="dropdown-content">
+                <a href="#">FAQ</a>
+                <a href="#">Kontakt</a>
+                <a href="#">Dokumentation</a>
+            </div>
+        </div>
+
+        <!-- EINSTELLUNGEN -->
+        <div class="dropdown">
+            <button class="dropdown-btn">Einstellungen</button>
+            <div class="dropdown-content" id="einstellungenMenu">
+
+                <a class="hat-untermenu" id="designLink" onclick="toggleUntermenu(event, 'designLink')">
+                    <span>Design</span>
+                    <div class="untermenu">
+                        <div class="theme-grid">
+                            <button class="theme-btn" onclick="setTheme('standard')">🌿 Standard</button>
+                            <button class="theme-btn" onclick="setTheme('dark')">🌑 Dark</button>
+                            <button class="theme-btn" onclick="setTheme('weltraum')">🌌 Weltraum</button>
+                            <button class="theme-btn" onclick="setTheme('ocean')">🐠 Ocean</button>
+                            <button class="theme-btn" onclick="setTheme('wueste')">🏜️ Wüste</button>
+                            <button class="theme-btn" onclick="setTheme('schnee')">❄️ Schnee</button>
+                            <button class="theme-btn" onclick="setTheme('warm')">🔥 Warm</button>
+                            <button class="theme-btn" onclick="setTheme('aurora')">🌌 Aurora</button>
+                            <button class="theme-btn custom-btn" onclick="openModal('customColorModal')">🎨 Custom</button>
+                        </div>
+                    </div>
+                </a>
+
+                <a class="hat-untermenu" id="spracheLink" onclick="toggleUntermenu(event, 'spracheLink')">
+                    <span>Sprache</span>
+                    <div class="untermenu">
+                        <div class="lang-list">
+                            <button class="lang-btn aktiv" id="btn-de" onclick="setLanguage('de', event)">🇩🇪 Deutsch</button>
+                            <button class="lang-btn" id="btn-en" onclick="setLanguage('en', event)">🇬🇧 English</button>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+
+        <!-- ÜBER KAI -->
+        <div class="dropdown">
+            <button class="dropdown-btn">Über KAI</button>
+            <div class="dropdown-content">
+                <a href="#">Version</a>
+                <a href="#">Team</a>
+                <a href="#">Lizenz</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="trennlinie"></div>
+
+<!-- ── SEITEN INHALT ── -->
+<div class="seite">
+
     {% if current_user.is_authenticated %}
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem;">
-        <!-- Welcome Card -->
-        <div class="card">
-            <div class="card-header">
+
+    <div class="grid-2">
+        <div class="kai-card">
+            <div class="kai-card-header">
                 <h2>👋 Willkommen, {{ current_user.username }}!</h2>
             </div>
-            <div class="card-body">
-                <p style="margin-bottom: 1rem;">
-                    Willkommen bei <strong>KAI</strong>, deinem intelligenten Chat-Assistenten.
-                    Starten Sie einen neuen Chat oder nutzen Sie den Free Chat Modus.
-                </p>
-                <p style="color: #666; font-size: 0.9rem;">
+            <div class="kai-card-body">
+                <p>Willkommen bei <strong>KAI</strong>, deinem intelligenten Chat-Assistenten.
+                Starte einen neuen Chat oder nutze den Free Chat Modus.</p>
+                <p style="font-size:0.9rem; opacity:0.7;">
                     <strong>Benutzer-ID:</strong> {{ current_user.id }}<br>
                     <strong>Erstellt:</strong> {{ current_user.creation_date }}<br>
-                    <strong>Status:</strong> 
-                    <span class="badge {% if current_user.banned == '1' %}badge-danger{% else %}badge-success{% endif %}">
-                        {% if current_user.banned == '1' %}🚫 Gebannt{% else %}✅ Aktiv{% endif %}
-                    </span>
+                    <strong>Status:</strong>
+                    {% if current_user.banned == '1' %}
+                        <span class="kai-badge kai-badge-danger">🚫 Gebannt</span>
+                    {% else %}
+                        <span class="kai-badge kai-badge-success">✅ Aktiv</span>
+                    {% endif %}
                 </p>
             </div>
         </div>
 
-        <!-- Quick Start Card -->
-        <div class="card">
-            <div class="card-header">
+        <div class="kai-card">
+            <div class="kai-card-header">
                 <h2>🚀 Quick Start</h2>
             </div>
-            <div class="card-body">
-                <p style="margin-bottom: 1.5rem;">
-                    Wählen Sie, wie Sie starten möchten:
-                </p>
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <a href="/home" class="btn btn-primary" style="justify-content: center;">
-                        💬 Meine Chats öffnen
-                    </a>
-                    <a href="/freechat" class="btn btn-secondary" style="justify-content: center;">
-                        ⚡ Free Chat starten
-                    </a>
+            <div class="kai-card-body">
+                <p>Wähle, wie du starten möchtest:</p>
+                <div style="display:flex; flex-direction:column; gap:1rem; margin-top:1rem;">
+                    <a href="/home" class="kai-btn">💬 Meine Chats öffnen</a>
+                    <a href="/freechat" class="kai-btn kai-btn-secondary">⚡ Free Chat starten</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Features -->
-    <div style="margin-bottom: 3rem;">
-        <h2 style="margin-bottom: 2rem;">✨ Features</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
-            <div class="card">
-                <div class="card-body">
-                    <h3 style="margin-bottom: 1rem;">💾 Chat-Verlauf</h3>
-                    <p>Speichern und laden Sie Ihre bisherigen Chats jederzeit wieder.</p>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h3 style="margin-bottom: 1rem;">🤖 Mehrere Modelle</h3>
-                    <p>Wählen Sie zwischen verschiedenen KI-Modellen für Ihre Anfragen.</p>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h3 style="margin-bottom: 1rem;">⚡ Schnell & Zuverlässig</h3>
-                    <p>Blitzschnelle Antworten mit hoher Qualität.</p>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h3 style="margin-bottom: 1rem;">🔒 Sicher</h3>
-                    <p>Ihre Chats sind private und verschlüsselt gespeichert.</p>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h3 style="margin-bottom: 1rem;">📱 Responsive</h3>
-                    <p>Nutzen Sie KAI auf Desktop, Tablet oder Smartphone.</p>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h3 style="margin-bottom: 1rem;">🎯 Benutzerfreundlich</h3>
-                    <p>Intuitive Bedienung für eine optimale Nutzererfahrung.</p>
-                </div>
-            </div>
-        </div>
+    <div class="section-titel">✨ Features</div>
+    <div class="grid-auto">
+        <div class="kai-card"><div class="kai-card-body"><h3 style="margin-bottom:0.75rem; color:var(--text);">💾 Chat-Verlauf</h3><p>Speichere und lade deine bisherigen Chats jederzeit wieder.</p></div></div>
+        <div class="kai-card"><div class="kai-card-body"><h3 style="margin-bottom:0.75rem; color:var(--text);">🤖 Mehrere Modelle</h3><p>Wähle zwischen verschiedenen KI-Modellen für deine Anfragen.</p></div></div>
+        <div class="kai-card"><div class="kai-card-body"><h3 style="margin-bottom:0.75rem; color:var(--text);">⚡ Schnell & Zuverlässig</h3><p>Blitzschnelle Antworten mit hoher Qualität.</p></div></div>
+        <div class="kai-card"><div class="kai-card-body"><h3 style="margin-bottom:0.75rem; color:var(--text);">🔒 Sicher</h3><p>Deine Chats sind privat und verschlüsselt gespeichert.</p></div></div>
+        <div class="kai-card"><div class="kai-card-body"><h3 style="margin-bottom:0.75rem; color:var(--text);">📱 Responsive</h3><p>Nutze KAI auf Desktop, Tablet oder Smartphone.</p></div></div>
+        <div class="kai-card"><div class="kai-card-body"><h3 style="margin-bottom:0.75rem; color:var(--text);">🎯 Benutzerfreundlich</h3><p>Intuitive Bedienung für eine optimale Nutzererfahrung.</p></div></div>
     </div>
 
     {% else %}
-    <!-- Not Logged In -->
-    <div style="max-width: 800px; margin: 4rem auto;">
-        <div class="card">
-            <div class="card-header">
-                <h1 style="text-align: center; font-size: 3rem; margin: 0;">🤖 KAI</h1>
-                <p style="text-align: center; margin: 1rem 0 0 0; font-size: 1.2rem; opacity: 0.9;">
-                    Intelligentes Chat-System
-                </p>
+
+    <div class="hero-wrap">
+        <div class="kai-card">
+            <div class="kai-card-header" style="text-align:center; padding:2rem 1.5rem 1.5rem;">
+                <h1 class="hero-titel">🤖 KAI</h1>
+                <p class="hero-sub">Intelligentes Chat-System</p>
             </div>
-            <div class="card-body" style="text-align: center;">
-                <p style="font-size: 1.1rem; margin-bottom: 2rem; color: #666;">
+            <div class="kai-card-body" style="text-align:center;">
+                <p class="hero-text">
                     Willkommen bei KAI, deinem persönlichen KI-Assistenten.
-                    Melden Sie sich an oder registrieren Sie sich, um zu beginnen.
+                    Melde dich an oder registriere dich, um zu beginnen.
                 </p>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <a href="/login" class="btn btn-primary" style="justify-content: center; font-size: 1.1rem; padding: 1rem;">
-                        🔐 Anmelden
-                    </a>
-                    <a href="/register" class="btn btn-secondary" style="justify-content: center; font-size: 1.1rem; padding: 1rem;">
-                        ✍️ Registrieren
-                    </a>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                    <a href="/login"    class="kai-btn" style="font-size:1.05rem; padding:1rem;">🔐 Anmelden</a>
+                    <a href="/register" class="kai-btn kai-btn-secondary" style="font-size:1.05rem; padding:1rem;">✍️ Registrieren</a>
                 </div>
-
-                <hr style="margin: 2rem 0; border: none; border-top: 1px solid #e9ecef;">
-
-                <p style="color: #666; font-size: 0.95rem;">
-                    KAI ist ein intelligentes Chat-System, das Ihnen hilft, Fragen zu beantworten,
+                <hr class="hero-divider">
+                <p class="hero-footer-text">
+                    KAI ist ein intelligentes Chat-System, das dir hilft, Fragen zu beantworten,
                     kreativ zu denken und Probleme zu lösen. Powered by LM Studio.
                 </p>
             </div>
         </div>
 
-        <!-- Features for non-logged-in users -->
-        <div style="margin-top: 3rem;">
-            <h2 style="text-align: center; margin-bottom: 2rem;">Was kann KAI?</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-                <div style="text-align: center;">
-                    <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">💬</div>
-                    <h3>Natürliche Unterhaltung</h3>
-                    <p style="color: #666; font-size: 0.9rem;">
-                        Chatten Sie natürlich wie mit einem echten Menschen.
-                    </p>
+        <div class="was-kann-titel">Was kann KAI?</div>
+        <div class="grid-3">
+            <div class="kai-card"><div class="kai-card-body feature-karte"><span class="feature-icon">💬</span><h3>Natürliche Unterhaltung</h3><p>Chatte natürlich wie mit einem echten Menschen.</p></div></div>
+            <div class="kai-card"><div class="kai-card-body feature-karte"><span class="feature-icon">📚</span><h3>Wissensdatenbank</h3><p>Erhalte genaue Informationen zu verschiedenen Themen.</p></div></div>
+            <div class="kai-card"><div class="kai-card-body feature-karte"><span class="feature-icon">🎨</span><h3>Kreativ & Flexibel</h3><p>Von Poesie bis Programmierung – KAI kann vieles.</p></div></div>
+        </div>
+    </div>
+
+    {% endif %}
+</div>
+
+<!-- ── LOGOUT MODAL ── -->
+<div class="logout-modal" id="logoutModal">
+    <div class="logout-modal-content">
+        <div class="logout-modal-icon">🚪</div>
+        <div class="logout-modal-header">Wirklich ausloggen?</div>
+        <div class="logout-modal-body">Du wirst abgemeldet und zur Login-Seite weitergeleitet.</div>
+        <div class="logout-modal-footer">
+            <button class="btn-logout-cancel" onclick="closeLogoutModal()">Abbrechen</button>
+            <button class="btn-logout-confirm" onclick="doLogout()">Ja, ausloggen</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── CUSTOM COLOR PICKER MODAL ── -->
+<div class="modal-overlay" id="customColorModal">
+    <div class="modal-box" style="max-width:420px;">
+        <div class="modal-header">
+            <h2>🎨 Eigene Farben</h2>
+            <button class="modal-close" onclick="closeModal('customColorModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="color-picker-grid">
+                <div class="color-row">
+                    <span class="color-row-label"><span class="color-preview" id="prev-hintergrund"></span>🖥️ Hintergrund</span>
+                    <div class="color-input-wrap">
+                        <input type="color" id="cp-hintergrund" oninput="syncColor('hintergrund')">
+                        <input type="text" class="color-hex" id="hex-hintergrund" maxlength="7" oninput="syncHex('hintergrund')" placeholder="#f5f5f5">
+                    </div>
                 </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📚</div>
-                    <h3>Wissensdatenbank</h3>
-                    <p style="color: #666; font-size: 0.9rem;">
-                        Erhalten Sie genaue Informationen zu verschiedenen Themen.
-                    </p>
+                <div class="color-row">
+                    <span class="color-row-label"><span class="color-preview" id="prev-navbar"></span>📌 Navbar</span>
+                    <div class="color-input-wrap">
+                        <input type="color" id="cp-navbar" oninput="syncColor('navbar')">
+                        <input type="text" class="color-hex" id="hex-navbar" maxlength="7" oninput="syncHex('navbar')" placeholder="#ffffff">
+                    </div>
                 </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎨</div>
-                    <h3>Kreativ & Flexibel</h3>
-                    <p style="color: #666; font-size: 0.9rem;">
-                        Von Poesie bis Programmierung - KAI kann vieles.
-                    </p>
+                <div class="color-row">
+                    <span class="color-row-label"><span class="color-preview" id="prev-akzent"></span>🔷 Akzent</span>
+                    <div class="color-input-wrap">
+                        <input type="color" id="cp-akzent" oninput="syncColor('akzent')">
+                        <input type="text" class="color-hex" id="hex-akzent" maxlength="7" oninput="syncHex('akzent')" placeholder="#3a7d44">
+                    </div>
                 </div>
+                <div class="color-row">
+                    <span class="color-row-label"><span class="color-preview" id="prev-highlight"></span>✨ Highlight</span>
+                    <div class="color-input-wrap">
+                        <input type="color" id="cp-highlight" oninput="syncColor('highlight')">
+                        <input type="text" class="color-hex" id="hex-highlight" maxlength="7" oninput="syncHex('highlight')" placeholder="#4caf50">
+                    </div>
+                </div>
+                <div class="color-row">
+                    <span class="color-row-label"><span class="color-preview" id="prev-text"></span>🔤 Text</span>
+                    <div class="color-input-wrap">
+                        <input type="color" id="cp-text" oninput="syncColor('text')">
+                        <input type="text" class="color-hex" id="hex-text" maxlength="7" oninput="syncHex('text')" placeholder="#1b1b1b">
+                    </div>
+                </div>
+            </div>
+            <div class="color-picker-actions">
+                <button class="btn-reset" onclick="resetColors()">↺ Zurücksetzen</button>
+                <button class="btn-apply" onclick="closeModal('customColorModal')">✓ Übernehmen</button>
             </div>
         </div>
     </div>
-    {% endif %}
 </div>
+
+<script>
+// ══════════════════════════════════════════
+//  COOKIES HELFER
+// ══════════════════════════════════════════
+function setCookie(name, value, tage) {
+    const datum = new Date()
+    datum.setTime(datum.getTime() + tage * 24 * 60 * 60 * 1000)
+    document.cookie = `${name}=${encodeURIComponent(value)};expires=${datum.toUTCString()};path=/`
+}
+function getCookie(name) {
+    const suche = name + '='
+    const cookies = document.cookie.split(';')
+    for (let c of cookies) {
+        c = c.trim()
+        if (c.startsWith(suche)) return decodeURIComponent(c.substring(suche.length))
+    }
+    return null
+}
+
+// ══════════════════════════════════════════
+//  THEMES
+// ══════════════════════════════════════════
+const themes = {
+    standard: { '--hintergrund':'#f5f5f5','--navbar':'#ffffff','--akzent':'#3a7d44','--highlight':'#4caf50','--text':'#1b1b1b','--text-inv':'#ffffff','--bubble-bg':'rgba(255,255,255,0.85)','--input-bg':'rgba(255,255,255,0.6)','--input-area-bg':'rgba(255,255,255,0.7)' },
+    dark:     { '--hintergrund':'#121212','--navbar':'#1e1e1e','--akzent':'#3a7d44','--highlight':'#4caf50','--text':'#e8e8e8','--text-inv':'#121212','--bubble-bg':'rgba(40,40,40,0.85)','--input-bg':'rgba(40,40,40,0.6)','--input-area-bg':'rgba(30,30,30,0.8)' },
+    weltraum: { '--hintergrund':'#000010','--navbar':'#0a0a2a','--akzent':'#7b68ee','--highlight':'#9b88ff','--text':'#e0e0ff','--text-inv':'#000010','--bubble-bg':'rgba(20,20,60,0.75)','--input-bg':'rgba(20,20,60,0.5)','--input-area-bg':'rgba(10,10,42,0.8)' },
+    ocean:    { '--hintergrund':'#001f3f','--navbar':'#003060','--akzent':'#00bfff','--highlight':'#40d0ff','--text':'#d0f0ff','--text-inv':'#001f3f','--bubble-bg':'rgba(0,50,90,0.75)','--input-bg':'rgba(0,50,90,0.5)','--input-area-bg':'rgba(0,40,80,0.8)' },
+    wueste:   { '--hintergrund':'#c2873a','--navbar':'#a0621a','--akzent':'#ff8c00','--highlight':'#ffb347','--text':'#fff8ee','--text-inv':'#3a1800','--bubble-bg':'rgba(100,50,10,0.65)','--input-bg':'rgba(100,50,10,0.4)','--input-area-bg':'rgba(80,40,10,0.75)' },
+    schnee:   { '--hintergrund':'#1a2a4a','--navbar':'#0d1b35','--akzent':'#aad4f5','--highlight':'#cce8ff','--text':'#e8f4ff','--text-inv':'#0d1b35','--bubble-bg':'rgba(20,40,80,0.75)','--input-bg':'rgba(20,40,80,0.5)','--input-area-bg':'rgba(13,27,53,0.8)' },
+    warm:     { '--hintergrund':'#1a0a00','--navbar':'#2a1000','--akzent':'#ff6600','--highlight':'#ff9933','--text':'#ffe8cc','--text-inv':'#1a0a00','--bubble-bg':'rgba(60,20,0,0.7)','--input-bg':'rgba(60,20,0,0.45)','--input-area-bg':'rgba(42,16,0,0.8)' },
+    aurora:   { '--hintergrund':'#0d0d2b','--navbar':'#0a0a20','--akzent':'#00ff88','--highlight':'#00ffcc','--text':'#d0ffe8','--text-inv':'#0d0d2b','--bubble-bg':'rgba(10,30,20,0.75)','--input-bg':'rgba(10,30,20,0.5)','--input-area-bg':'rgba(10,10,32,0.8)' }
+}
+const defaultColors = { hintergrund:'#f5f5f5', navbar:'#ffffff', akzent:'#3a7d44', highlight:'#4caf50', text:'#1b1b1b' }
+
+function applyThemeVars(t) {
+    Object.entries(t).forEach(([k,v]) => document.documentElement.style.setProperty(k,v))
+}
+
+// ══════════════════════════════════════════
+//  SPRACHE  (mit Cookie speichern)
+// ══════════════════════════════════════════
+let aktiveSprache = 'de'
+
+function setLanguage(lang, e) {
+    if (e) e.stopPropagation()
+    aktiveSprache = lang
+    document.getElementById('btn-de').classList.toggle('aktiv', lang==='de')
+    document.getElementById('btn-en').classList.toggle('aktiv', lang==='en')
+    document.documentElement.lang = lang
+    setCookie('kai_sprache', lang, 365)   // 🍪 1 Jahr speichern
+}
+
+function ladeSprache() {
+    const gespeichert = getCookie('kai_sprache')
+    if (gespeichert) setLanguage(gespeichert, null)
+}
+
+// ══════════════════════════════════════════
+//  THEME SETTER  (mit Cookie speichern)
+// ══════════════════════════════════════════
+let animationID = null
+
+function stopAnimation() {
+    if (animationID) cancelAnimationFrame(animationID)
+    animationID = null
+    const canvas = document.getElementById('hintergrund-canvas')
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
+    document.body.classList.remove('aurora-bg')
+}
+
+function setTheme(name) {
+    stopAnimation()
+    const t = themes[name]; if (!t) return
+    applyThemeVars(t)
+    setCookie('kai_theme', name, 365)     // 🍪 1 Jahr speichern
+    if (name==='weltraum') starteWeltraum()
+    if (name==='schnee')   starteSchnee()
+    if (name==='ocean')    starteOcean()
+    if (name==='wueste')   starteWueste()
+    if (name==='warm')     starteWarm()
+    if (name==='aurora')   starteAurora()
+}
+
+function ladeTheme() {
+    const gespeichert = getCookie('kai_theme')
+    if (gespeichert === 'custom') {
+        // Custom Farben aus Cookie laden
+        const customJSON = getCookie('kai_custom_colors')
+        if (customJSON) {
+            try {
+                const farben = JSON.parse(customJSON)
+                applyThemeVars(farben)
+            } catch(e) { setTheme('standard') }
+        }
+    } else if (gespeichert && themes[gespeichert]) {
+        setTheme(gespeichert)
+    }
+}
+
+// ══════════════════════════════════════════
+//  DROPDOWN
+// ══════════════════════════════════════════
+const alleUntermenues = ['designLink','spracheLink']
+function toggleUntermenu(e, id) {
+    e.stopPropagation()
+    const el = document.getElementById(id)
+    const war = el.classList.contains('untermenu-offen')
+    alleUntermenues.forEach(i => document.getElementById(i).classList.remove('untermenu-offen'))
+    if (!war) el.classList.add('untermenu-offen')
+}
+
+let angeklickt = false, durchHoverOffen = false
+document.querySelectorAll('.dropdown').forEach(dropdown => {
+    const btn  = dropdown.querySelector('.dropdown-btn')
+    const menu = dropdown.querySelector('.dropdown-content')
+    btn.addEventListener('click', e => {
+        e.stopPropagation()
+        if (durchHoverOffen) { angeklickt=true; durchHoverOffen=false; return }
+        const istOffen = menu.classList.contains('offen')
+        document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('offen'))
+        if (!istOffen) { menu.classList.add('offen'); angeklickt=true } else angeklickt=false
+    })
+    dropdown.addEventListener('mouseenter', () => { if (!angeklickt) { menu.classList.add('offen'); durchHoverOffen=true } })
+    dropdown.addEventListener('mouseleave', () => {
+        if (!angeklickt) {
+            menu.classList.remove('offen'); durchHoverOffen=false
+            alleUntermenues.forEach(id => document.getElementById(id).classList.remove('untermenu-offen'))
+        }
+    })
+})
+document.addEventListener('click', e => {
+    if (e.target.closest('.dropdown')) return
+    document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('offen'))
+    alleUntermenues.forEach(id => document.getElementById(id).classList.remove('untermenu-offen'))
+    angeklickt=false; durchHoverOffen=false
+})
+document.querySelectorAll('.theme-btn, .lang-btn').forEach(btn => btn.addEventListener('click', e => e.stopPropagation()))
+
+// ══════════════════════════════════════════
+//  MODALS
+// ══════════════════════════════════════════
+function openModal(id) {
+    document.getElementById(id).classList.add('active')
+    document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('offen'))
+    angeklickt = false
+    if (id==='customColorModal') initColorPicker()
+}
+function closeModal(id) { document.getElementById(id).classList.remove('active') }
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => { if (e.target===overlay) closeModal(overlay.id) })
+})
+
+// ══════════════════════════════════════════
+//  LOGOUT
+// ══════════════════════════════════════════
+function openLogoutModal() {
+    document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('offen'))
+    alleUntermenues.forEach(id => document.getElementById(id).classList.remove('untermenu-offen'))
+    angeklickt = false
+    document.getElementById('logoutModal').classList.add('active')
+}
+function closeLogoutModal() { document.getElementById('logoutModal').classList.remove('active') }
+document.getElementById('logoutModal').addEventListener('click', function(e) { if (e.target===this) closeLogoutModal() })
+async function doLogout() {
+    try { await fetch('/logout', { method: 'POST' }); window.location.href = '/login' }
+    catch { window.location.href = '/login' }
+}
+
+// ══════════════════════════════════════════
+//  COLOR PICKER  (mit Cookie speichern)
+// ══════════════════════════════════════════
+const colorVars = ['hintergrund','navbar','akzent','highlight','text']
+
+function getCSSVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(`--${name}`).trim()
+}
+
+function initColorPicker() {
+    colorVars.forEach(v => {
+        const current = getCSSVar(v)
+        const hex = rgbToHex(current) || current
+        document.getElementById(`cp-${v}`).value = hex
+        document.getElementById(`hex-${v}`).value = hex
+        document.getElementById(`prev-${v}`).style.background = hex
+    })
+}
+
+function syncColor(v) {
+    const val = document.getElementById(`cp-${v}`).value
+    document.getElementById(`hex-${v}`).value = val
+    document.getElementById(`prev-${v}`).style.background = val
+    document.documentElement.style.setProperty(`--${v}`, val)
+    if (v==='text') document.documentElement.style.setProperty('--text-inv', invertColor(val))
+    speichereCustomColors()   // 🍪 sofort speichern
+}
+
+function syncHex(v) {
+    let val = document.getElementById(`hex-${v}`).value
+    if (!val.startsWith('#')) val='#'+val
+    if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+        document.getElementById(`cp-${v}`).value = val
+        document.getElementById(`prev-${v}`).style.background = val
+        document.documentElement.style.setProperty(`--${v}`, val)
+        if (v==='text') document.documentElement.style.setProperty('--text-inv', invertColor(val))
+        speichereCustomColors()   // 🍪 sofort speichern
+    }
+}
+
+function speichereCustomColors() {
+    // Alle aktuellen CSS-Variablen als JSON im Cookie speichern
+    const farben = {}
+    const alleVars = ['--hintergrund','--navbar','--akzent','--highlight','--text','--text-inv','--bubble-bg','--input-bg','--input-area-bg']
+    alleVars.forEach(v => {
+        farben[v] = getComputedStyle(document.documentElement).getPropertyValue(v).trim()
+    })
+    setCookie('kai_theme', 'custom', 365)
+    setCookie('kai_custom_colors', JSON.stringify(farben), 365)
+}
+
+function resetColors() {
+    applyThemeVars(themes.standard)
+    setCookie('kai_theme', 'standard', 365)   // 🍪 zurücksetzen
+    setCookie('kai_custom_colors', '', -1)     // 🍪 custom löschen
+    colorVars.forEach(v => {
+        const val = defaultColors[v]
+        document.getElementById(`cp-${v}`).value = val
+        document.getElementById(`hex-${v}`).value = val
+        document.getElementById(`prev-${v}`).style.background = val
+    })
+}
+
+function rgbToHex(rgb) {
+    const m = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/)
+    if (!m) return rgb
+    return '#' + [m[1],m[2],m[3]].map(x => parseInt(x).toString(16).padStart(2,'0')).join('')
+}
+function invertColor(hex) {
+    const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16)
+    return (r*0.299+g*0.587+b*0.114) > 128 ? '#111111' : '#ffffff'
+}
+
+// ══════════════════════════════════════════
+//  CANVAS ANIMATIONEN
+// ══════════════════════════════════════════
+const canvas = document.getElementById('hintergrund-canvas')
+const ctx = canvas.getContext('2d')
+canvas.width = window.innerWidth
+canvas.height = window.innerHeight
+window.addEventListener('resize', () => { canvas.width=window.innerWidth; canvas.height=window.innerHeight })
+let teilchen = []
+
+function starteWeltraum() { teilchen=[]; for(let i=0;i<150;i++) teilchen.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2,alpha:Math.random(),speed:Math.random()*0.02}); function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);teilchen.forEach(s=>{s.alpha+=s.speed;if(s.alpha>1||s.alpha<0)s.speed*=-1;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${s.alpha})`;ctx.fill()});animationID=requestAnimationFrame(draw)}draw() }
+function starteSchnee()   { teilchen=[]; for(let i=0;i<120;i++) teilchen.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*4+1,speedY:Math.random()*1.5+0.5,speedX:(Math.random()-0.5)*0.5}); function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);teilchen.forEach(s=>{s.y+=s.speedY;s.x+=s.speedX;if(s.y>canvas.height)s.y=0;if(s.x>canvas.width)s.x=0;if(s.x<0)s.x=canvas.width;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.85)';ctx.fill()});animationID=requestAnimationFrame(draw)}draw() }
+function starteOcean()    { teilchen=[]; const emojis=['🐠','🐟','🐡','🦈','🐙']; for(let i=0;i<10;i++) teilchen.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,speed:Math.random()*1.5+0.5,emoji:emojis[Math.floor(Math.random()*emojis.length)],size:Math.random()*20+15,richtung:Math.random()>0.5?1:-1}); function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);teilchen.forEach(f=>{f.x-=f.speed*f.richtung;if(f.richtung===1&&f.x<-50)f.x=canvas.width+50;if(f.richtung===-1&&f.x>canvas.width+50)f.x=-50;ctx.save();ctx.font=`${f.size}px serif`;if(f.richtung===-1){ctx.scale(-1,1);ctx.fillText(f.emoji,-f.x,f.y)}else{ctx.fillText(f.emoji,f.x,f.y)}ctx.restore()});animationID=requestAnimationFrame(draw)}draw() }
+function starteWueste()   { teilchen=[]; for(let i=0;i<80;i++) teilchen.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2,speedX:Math.random()*2+0.5,speedY:(Math.random()-0.5)*0.3}); function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);teilchen.forEach(s=>{s.x+=s.speedX;s.y+=s.speedY;if(s.x>canvas.width)s.x=0;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle='rgba(210,180,100,0.6)';ctx.fill()});animationID=requestAnimationFrame(draw)}draw() }
+function starteWarm()     { teilchen=[]; for(let i=0;i<60;i++) teilchen.push({x:Math.random()*canvas.width,y:canvas.height+Math.random()*100,r:Math.random()*3+1,speedY:Math.random()*1.5+0.5,speedX:(Math.random()-0.5)*0.8,alpha:Math.random()*0.6+0.2,wobble:Math.random()*Math.PI*2}); function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);teilchen.forEach(s=>{s.y-=s.speedY;s.x+=Math.sin(s.wobble)*0.5;s.wobble+=0.03;s.alpha-=0.003;if(s.y<-10||s.alpha<=0){s.y=canvas.height+Math.random()*100;s.x=Math.random()*canvas.width;s.alpha=Math.random()*0.6+0.2}ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,100,0,${s.alpha})`;ctx.fill()});animationID=requestAnimationFrame(draw)}draw() }
+function starteAurora()   { document.body.classList.add('aurora-bg'); let t=0; function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);for(let i=0;i<5;i++){const y=canvas.height*0.3+Math.sin(t*0.5+i*1.2)*80;const grad=ctx.createLinearGradient(0,y-60,0,y+60);grad.addColorStop(0,'rgba(0,255,136,0)');grad.addColorStop(0.5,`rgba(0,255,${150+i*20},0.08)`);grad.addColorStop(1,'rgba(0,255,204,0)');ctx.fillStyle=grad;ctx.beginPath();ctx.moveTo(0,y);for(let x=0;x<=canvas.width;x+=10){ctx.lineTo(x,y+Math.sin(x*0.01+t+i)*40)}ctx.lineTo(canvas.width,canvas.height);ctx.lineTo(0,canvas.height);ctx.closePath();ctx.fill()}t+=0.02;animationID=requestAnimationFrame(draw)}draw() }
+
+function escapeHtml(text) { const d=document.createElement('div'); d.textContent=text; return d.innerHTML }
+
+// ══════════════════════════════════════════
+//  BEIM LADEN: Cookies auslesen & anwenden
+// ══════════════════════════════════════════
+ladeTheme()
+ladeSprache()
+</script>
+
 {% endblock %}
