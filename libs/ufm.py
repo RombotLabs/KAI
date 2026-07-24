@@ -61,12 +61,33 @@ class UFM:
 
         return chat_id
 
+    def _get_chat_filepath(self, chat_id: int) -> str:
+        """Build and validate a safe absolute path for a chat JSON file."""
+        if not self.current_user_path:
+            raise RuntimeError("UFM not initialized. Call setup() first.")
+
+        try:
+            chat_id = int(chat_id)
+        except (TypeError, ValueError):
+            raise ValueError("Invalid chat_id")
+
+        if chat_id < 1:
+            raise ValueError("Invalid chat_id")
+
+        base_path = os.path.abspath(self.current_user_path)
+        filepath = os.path.abspath(os.path.join(base_path, f"{chat_id}.json"))
+
+        if os.path.commonpath([base_path, filepath]) != base_path:
+            raise ValueError("Invalid chat path")
+
+        return filepath
+
     def load_chat(self, chat_id):
         """Load chat messages from JSON file"""
         if not self.current_user_path:
             raise RuntimeError("UFM not initialized. Call setup() first.")
 
-        filepath = os.path.join(self.current_user_path, f"{chat_id}.json")
+        filepath = self._get_chat_filepath(chat_id)
 
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"Chat {chat_id} not found")
@@ -81,7 +102,7 @@ class UFM:
         if not self.current_user_path:
             raise RuntimeError("UFM not initialized. Call setup() first.")
 
-        filepath = os.path.join(self.current_user_path, f"{chat_id}.json")
+        filepath = self._get_chat_filepath(chat_id)
 
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"Chat {chat_id} not found")
@@ -123,7 +144,7 @@ class UFM:
         if not self.current_user_path:
             raise RuntimeError("UFM not initialized. Call setup() first.")
 
-        filepath = os.path.join(self.current_user_path, f"{chat_id}.json")
+        filepath = self._get_chat_filepath(chat_id)
 
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"Chat {chat_id} not found")
