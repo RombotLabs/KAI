@@ -36,6 +36,14 @@
         {
             "role": "assistant",
             "content": "Gerne, hier die Kurzfassung für die 9. Klasse:\n\nDie Parabel ist einfach der **Grafikörper einer quadratischen Funktion** und bildet immer diese charakteristische U-Kurve.\n\n1.  **Symmetrie:** Sie ist perfekt symmetrisch zu einer Linie, der **Symmetrieachse**.\n2.  **Scheitelpunkt:** Der wichtigste Punkt ist der **Scheitelpunkt**, da er das höchste oder tiefste U definiert.\n3.  **Die Steuerung ($a$):** Der Koeffizient $a$ in der Gleichung bestimmt, ob die Kurve schmal oder flach ist und welche Richtung sie hat.\n\n**Kurz gesagt: Die Parabel ist das visuelle Ergebnis einer quadratischen Gleichung.**"
+        },
+        {
+            "role": "user",
+            "content": "HI"
+        },
+        {
+            "role": "assistant",
+            "content": "Hallo! 👋\n\nWie kann ich dir heute helfen? Hast du eine Frage zu Mathematik, einem anderen Thema oder brauchst du einfach nur ein bisschen Hilfe beim Lernen? Lass es mich wissen! 😊"
         }
     ]
 }
